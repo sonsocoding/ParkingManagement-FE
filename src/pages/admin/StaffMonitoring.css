@@ -1,0 +1,120 @@
+.monitoring-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.monitoring-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.monitoring-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.monitoring-stat-val {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.monitoring-stat-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.text-available { color: var(--color-available); }
+.text-occupied { color: var(--color-occupied); }
+.text-reserved { color: var(--color-reserved); }
+
+.monitoring-grid-container {
+  padding: 24px;
+}
+
+.monitoring-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.monitoring-zones {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.monitoring-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 8px;
+}
+
+.monitoring-slot {
+  height: 48px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  position: relative;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.monitoring-slot:hover {
+  transform: scale(1.1);
+  z-index: 2;
+  box-shadow: var(--shadow-sm);
+}
+
+.monitoring-available {
+  background: var(--color-available-bg);
+  border: 1px solid var(--color-available);
+  color: var(--color-available-text);
+}
+
+.monitoring-occupied {
+  background: var(--color-occupied);
+  color: white;
+}
+
+.monitoring-reserved {
+  background: var(--color-reserved);
+  color: white;
+}
+
+.monitoring-maintenance {
+  background: var(--color-maintenance-bg);
+  border: 1px dashed var(--color-maintenance);
+  color: var(--color-maintenance);
+}
+
+.maintenance-icon {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  color: var(--color-occupied);
+}
+
+@media (max-width: 768px) {
+  .monitoring-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

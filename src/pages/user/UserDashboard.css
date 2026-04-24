@@ -1,0 +1,131 @@
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.quick-action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-default);
+  text-align: left;
+  width: 100%;
+}
+
+.quick-action-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-lighter);
+}
+
+.quick-action-card:hover .quick-action-arrow {
+  transform: translateX(4px);
+  color: var(--color-primary);
+}
+
+.quick-action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quick-action-card h3 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.quick-action-card p {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.quick-action-arrow {
+  margin-left: auto;
+  color: var(--text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+/* User Booking List */
+.user-booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-booking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--surface-page);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  transition: box-shadow var(--transition-fast);
+}
+
+.user-booking-item:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.user-booking-lot {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.user-booking-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.user-booking-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.user-booking-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.user-booking-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.user-booking-cost {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+@media (max-width: 800px) {
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+}

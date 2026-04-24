@@ -1,0 +1,73 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--border-light);
+  min-height: var(--topbar-height);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.topbar-subtitle {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-role-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topbar-notification {
+  position: relative;
+}
+
+.topbar-notification-dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--color-occupied);
+  border-radius: 50%;
+  border: 2px solid var(--surface-card);
+}
+
+.topbar-avatar {
+  width: 36px;
+  height: 36px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
