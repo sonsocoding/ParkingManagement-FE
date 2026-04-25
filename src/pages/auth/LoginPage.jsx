@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ParkingCircle, Eye, EyeOff } from 'lucide-react';
-import './Auth.css';
+import '../../styles/pages/auth/Auth.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();

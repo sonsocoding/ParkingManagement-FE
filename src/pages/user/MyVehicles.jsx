@@ -2,7 +2,7 @@ import { useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { Car, Bike, Plus, Pencil, Trash2, X } from 'lucide-react';
 import { vehicles } from '../../data/sampleData';
-import './MyVehicles.css';
+import '../../styles/pages/user/MyVehicles.css';
 
 export default function MyVehicles() {
   const [showModal, setShowModal] = useState(false);

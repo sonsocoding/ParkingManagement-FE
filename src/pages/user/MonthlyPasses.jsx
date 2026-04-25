@@ -1,7 +1,7 @@
 import TopBar from '../../components/layout/TopBar';
 import { Ticket, Calendar, Plus, RotateCw, X } from 'lucide-react';
 import { monthlyPasses, formatCurrency, formatDate } from '../../data/sampleData';
-import './MonthlyPasses.css';
+import '../../styles/pages/user/MonthlyPasses.css';
 
 export default function MonthlyPasses() {
   return (

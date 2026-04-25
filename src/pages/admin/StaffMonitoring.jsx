@@ -2,7 +2,7 @@ import { useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { parkingLots, parkingSlots } from '../../data/sampleData';
 import { Monitor, AlertTriangle } from 'lucide-react';
-import './StaffMonitoring.css';
+import '../../styles/pages/admin/StaffMonitoring.css';
 
 export default function StaffMonitoring() {
   const [selectedLot, setSelectedLot] = useState(parkingLots[0]?.id);

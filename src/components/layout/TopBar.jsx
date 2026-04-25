@@ -1,6 +1,6 @@
 import { useAuth } from '../../context/AuthContext';
 import { Bell, Search, Settings } from 'lucide-react';
-import './TopBar.css';
+import '../../styles/components/layout/TopBar.css';
 
 export default function TopBar({ title, subtitle, actions }) {
   const { user, switchRole } = useAuth();
@@ -18,10 +18,9 @@ export default function TopBar({ title, subtitle, actions }) {
         {/* Role Switcher (Dev Tool) */}
         <div className="topbar-role-switcher">
           <select
-            className="form-select"
+            className="form-select topbar-role-select"
             value={user?.role}
             onChange={(e) => switchRole(e.target.value)}
-            style={{ fontSize: '12px', padding: '6px 28px 6px 8px', width: 'auto' }}
           >
             <option value="USER">👤 USER</option>
             <option value="MANAGER">👔 MANAGER</option>

@@ -5,7 +5,7 @@ import {
   Ticket, Users, Building2, ParkingSquare, ClipboardList, Monitor,
   LogOut, ChevronLeft, ChevronRight, ParkingCircle, Plus
 } from 'lucide-react';
-import './Sidebar.css';
+import '../../styles/components/layout/Sidebar.css';
 
 const userNav = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },

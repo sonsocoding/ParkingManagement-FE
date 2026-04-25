@@ -5,7 +5,7 @@ import {
   CreditCard, Ticket, ArrowUpRight, ArrowDownRight, Clock, MapPin
 } from 'lucide-react';
 import { dashboardStats, formatCurrency, bookings, parkingLots, revenueByDay, parkingRecords } from '../../data/sampleData';
-import './AdminDashboard.css';
+import '../../styles/pages/admin/AdminDashboard.css';
 
 export default function AdminDashboard() {
   const stats = dashboardStats;

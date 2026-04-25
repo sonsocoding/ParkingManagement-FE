@@ -2,7 +2,7 @@ import { useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { CalendarCheck, Clock, Car, ParkingSquare, X, Filter } from 'lucide-react';
 import { bookings, formatCurrency, formatDateTime } from '../../data/sampleData';
-import './MyBookings.css';
+import '../../styles/pages/user/MyBookings.css';
 
 export default function MyBookings() {
   const [statusFilter, setStatusFilter] = useState('ALL');

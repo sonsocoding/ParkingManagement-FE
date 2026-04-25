@@ -1,7 +1,7 @@
 import TopBar from '../../components/layout/TopBar';
 import { Clock, Car, MapPin, ArrowRight } from 'lucide-react';
 import { parkingRecords, formatDateTime, formatCurrency } from '../../data/sampleData';
-import './ParkingHistory.css';
+import '../../styles/pages/user/ParkingHistory.css';
 
 export default function ParkingHistory() {
   return (

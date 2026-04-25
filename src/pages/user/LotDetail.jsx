@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/layout/TopBar';
 import { MapPin, Car, Bike, Info, ArrowLeft } from 'lucide-react';
 import { parkingLots, parkingSlots, formatCurrency } from '../../data/sampleData';
-import './LotDetail.css';
+import '../../styles/pages/user/LotDetail.css';
 
 export default function LotDetail() {
   const { id } = useParams();

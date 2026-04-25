@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TopBar from '../../components/layout/TopBar';
 import { MapPin, Car, Bike, Search, Filter, Clock } from 'lucide-react';
 import { parkingLots, formatCurrency } from '../../data/sampleData';
-import './BrowseLots.css';
+import '../../styles/pages/user/BrowseLots.css';
 
 export default function BrowseLots() {
   const navigate = useNavigate();
