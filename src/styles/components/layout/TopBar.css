@@ -37,12 +37,6 @@
   gap: 8px;
 }
 
-.topbar-role-switcher {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .topbar-notification {
   position: relative;
 }
@@ -70,10 +64,4 @@
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
-}
-
-.topbar-role-select {
-  font-size: 12px;
-  padding: 6px 28px 6px 8px;
-  width: auto;
 }

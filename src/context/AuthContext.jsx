@@ -57,18 +57,14 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const switchRole = (role) => {
-    // This is a UI-only dev feature; we might not need it if connected to real BE
-    // but we can leave it to avoid breaking dev tools
-    setUser({ ...user, role });
-  };
+
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, switchRole }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

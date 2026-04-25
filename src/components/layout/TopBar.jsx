@@ -4,7 +4,7 @@ import { Bell, Search, Settings, Moon, Sun } from 'lucide-react';
 import '../../styles/components/layout/TopBar.css';
 
 export default function TopBar({ title, subtitle, actions }) {
-  const { user, switchRole } = useAuth();
+  const { user } = useAuth();
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark' || 
@@ -33,18 +33,6 @@ export default function TopBar({ title, subtitle, actions }) {
       </div>
 
       <div className="topbar-right">
-        {/* Role Switcher (Dev Tool) */}
-        <div className="topbar-role-switcher">
-          <select
-            className="form-select topbar-role-select"
-            value={user?.role}
-            onChange={(e) => switchRole(e.target.value)}
-          >
-            <option value="USER">👤 USER</option>
-            <option value="ADMIN">🔑 ADMIN</option>
-          </select>
-        </div>
-
         {actions && <div className="topbar-actions">{actions}</div>}
 
         <button className="btn-icon" title="Toggle Dark Mode" onClick={toggleDarkMode}>
