@@ -46,22 +46,12 @@ export default function Sidebar({ collapsed, onToggle }) {
         </div>
         {!collapsed && (
           <div className="sidebar-logo-text">
-            <span className="sidebar-brand">ParkSmart</span>
-            <span className="sidebar-subtitle">Management</span>
+            <span className="sidebar-brand">Smart Parking</span>
           </div>
         )}
       </div>
 
-      {/* New Booking Button */}
-      {!collapsed && user?.role === 'USER' && (
-        <button
-          className="sidebar-new-booking btn btn-primary w-full"
-          onClick={() => navigate('/parking-lots')}
-        >
-          <Plus size={18} />
-          New Booking
-        </button>
-      )}
+
 
       {/* Navigation */}
       <nav className="sidebar-nav">

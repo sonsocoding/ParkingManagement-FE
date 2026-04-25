@@ -55,11 +55,7 @@
   margin-top: -2px;
 }
 
-/* New Booking Button */
-.sidebar-new-booking {
-  margin: 16px 16px 4px;
-  border-radius: var(--radius-md);
-}
+
 
 /* Navigation */
 .sidebar-nav {

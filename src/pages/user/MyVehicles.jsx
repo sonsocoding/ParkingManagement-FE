@@ -48,39 +48,40 @@ export default function MyVehicles() {
           </div>
         </div>
 
-        {/* Add Modal */}
-        {showModal && (
-          <div className="modal-overlay" onClick={() => setShowModal(false)}>
-            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <h3 className="headline-sm">Add Vehicle</h3>
-                <button className="btn-icon" onClick={() => setShowModal(false)}><X size={20} /></button>
+      </div>
+      
+      {/* Add Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="headline-sm">Add Vehicle</h3>
+              <button className="btn-icon" onClick={() => setShowModal(false)}><X size={20} /></button>
+            </div>
+            <form className="modal-body">
+              <div className="form-group">
+                <label className="form-label">Vehicle Type</label>
+                <select className="form-select">
+                  <option value="CAR">Car</option>
+                  <option value="MOTORBIKE">Motorbike</option>
+                </select>
               </div>
-              <form className="modal-body">
-                <div className="form-group">
-                  <label className="form-label">Vehicle Type</label>
-                  <select className="form-select">
-                    <option value="CAR">Car</option>
-                    <option value="MOTORBIKE">Motorbike</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Plate Number</label>
-                  <input className="form-input" placeholder="e.g. 29A-12345" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Color (optional)</label>
-                  <input className="form-input" placeholder="e.g. White, Black" />
-                </div>
-              </form>
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                <button className="btn btn-primary" onClick={() => setShowModal(false)}>Add Vehicle</button>
+              <div className="form-group">
+                <label className="form-label">Plate Number</label>
+                <input className="form-input" placeholder="e.g. 29A-12345" />
               </div>
+              <div className="form-group">
+                <label className="form-label">Color (optional)</label>
+                <input className="form-input" placeholder="e.g. White, Black" />
+              </div>
+            </form>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={() => setShowModal(false)}>Add Vehicle</button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }

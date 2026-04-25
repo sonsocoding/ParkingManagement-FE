@@ -57,7 +57,7 @@ export default function RegisterPage() {
             <div className="auth-logo-icon">
               <ParkingCircle size={24} />
             </div>
-            <span className="auth-logo-text">ParkSmart</span>
+            <span className="auth-logo-text">Smart Parking</span>
           </div>
 
           <h2 className="auth-card-title">Create your account</h2>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/layout/TopBar';
-import { MapPin, Car, Bike, Info, ArrowLeft } from 'lucide-react';
+import { MapPin, Car, Bike, Info, ArrowLeft, Wrench } from 'lucide-react';
 import { parkingLots, parkingSlots, formatCurrency } from '../../data/sampleData';
 import '../../styles/pages/user/LotDetail.css';
 
@@ -77,7 +77,13 @@ export default function LotDetail() {
                     >
                       <span className="slot-number">{slot.slotNumber}</span>
                       <span className="slot-type">
-                        {slot.vehicleType === 'CAR' ? <Car size={16} /> : <Bike size={16} />}
+                        {slot.status === 'MAINTENANCE' ? (
+                          <Wrench size={16} />
+                        ) : slot.vehicleType === 'CAR' ? (
+                          <Car size={16} />
+                        ) : (
+                          <Bike size={16} />
+                        )}
                       </span>
                     </button>
                   ))}
