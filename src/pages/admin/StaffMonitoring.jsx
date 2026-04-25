@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { parkingLots, parkingSlots } from '../../data/sampleData';
-import { Monitor, AlertTriangle } from 'lucide-react';
+import { Monitor, Wrench } from 'lucide-react';
 import '../../styles/pages/admin/StaffMonitoring.css';
 
 export default function StaffMonitoring() {
@@ -65,7 +65,7 @@ export default function StaffMonitoring() {
                       className={`monitoring-slot monitoring-${slot.status.toLowerCase()}`}
                       title={`${slot.slotNumber} - ${slot.status}`}
                     >
-                      {slot.status === 'MAINTENANCE' && <AlertTriangle size={14} className="maintenance-icon" />}
+                      {slot.status === 'MAINTENANCE' && <Wrench size={14} className="maintenance-icon" />}
                       <span className="monitoring-slot-number">{slot.slotNumber}</span>
                     </div>
                   ))}
