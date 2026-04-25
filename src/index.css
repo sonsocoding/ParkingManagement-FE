@@ -101,6 +101,67 @@
   --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ── Dark Mode Tokens ───────────────────────────────────────── */
+.dark {
+  /* Primary */
+  --color-primary: #8C9EFF;
+  --color-primary-light: #5C6BC0;
+  --color-primary-lighter: #3949AB;
+  --color-primary-bg: #1A237E;
+  --color-primary-text: #ffffff;
+
+  /* Semantic — Parking Status */
+  --color-available: #66BB6A;
+  --color-available-bg: #1B5E20;
+  --color-available-text: #E8F5E9;
+  --color-occupied: #EF5350;
+  --color-occupied-bg: #B71C1C;
+  --color-occupied-text: #FFEBEE;
+  --color-reserved: #FFA726;
+  --color-reserved-bg: #E65100;
+  --color-reserved-text: #FFF3E0;
+  --color-maintenance: #90A4AE;
+  --color-maintenance-bg: #37474F;
+  --color-maintenance-text: #ECEFF1;
+
+  /* Booking Status */
+  --color-confirmed: #66BB6A;
+  --color-confirmed-bg: #1B5E20;
+  --color-pending: #FFA726;
+  --color-pending-bg: #E65100;
+  --color-completed: #42A5F5;
+  --color-completed-bg: #0D47A1;
+  --color-cancelled: #EF5350;
+  --color-cancelled-bg: #B71C1C;
+
+  /* Surfaces */
+  --surface-page: #121212;
+  --surface-sidebar: #1A1A1A;
+  --surface-card: #242424;
+  --surface-card-hover: #2E2E2E;
+  --surface-input: #2C2C2C;
+  --surface-modal-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Text */
+  --text-primary: #E3E3E3;
+  --text-secondary: #AAAAAA;
+  --text-tertiary: #757575;
+  --text-inverse: #121212;
+  --text-link: #8C9EFF;
+
+  /* Borders */
+  --border-light: #333333;
+  --border-default: #444444;
+  --border-focus: #8C9EFF;
+
+  /* Shadows (darken for dark mode) */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,0.5);
+}
+
 /* ── Reset & Base ───────────────────────────────────────────── */
 *,
 *::before,
@@ -299,6 +360,10 @@ ul, ol {
   background: #C62828;
 }
 
+.dark .btn-danger:hover {
+  background: #D32F2F;
+}
+
 .btn-sm {
   padding: 6px 12px;
   font-size: 13px;
@@ -423,6 +488,11 @@ ul, ol {
 .badge-user { background: var(--surface-card-hover); color: var(--text-secondary); }
 .badge-car { background: #E3F2FD; color: #1565C0; }
 .badge-motorbike { background: #FFF3E0; color: #E65100; }
+
+.dark .badge-admin { background: #311B92; color: #D1C4E9; }
+.dark .badge-car { background: #0D47A1; color: #BBDEFB; }
+.dark .badge-motorbike { background: #E65100; color: #FFE0B2; }
+.dark .badge-completed { color: #64B5F6; }
 
 /* ── Data Table ─────────────────────────────────────────────── */
 .data-table {

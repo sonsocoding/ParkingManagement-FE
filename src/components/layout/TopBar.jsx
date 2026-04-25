@@ -1,9 +1,27 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Bell, Search, Settings } from 'lucide-react';
+import { Bell, Search, Settings, Moon, Sun } from 'lucide-react';
 import '../../styles/components/layout/TopBar.css';
 
 export default function TopBar({ title, subtitle, actions }) {
   const { user, switchRole } = useAuth();
+  
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark' || 
+           (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   return (
     <header className="topbar">
@@ -28,6 +46,10 @@ export default function TopBar({ title, subtitle, actions }) {
         </div>
 
         {actions && <div className="topbar-actions">{actions}</div>}
+
+        <button className="btn-icon" title="Toggle Dark Mode" onClick={toggleDarkMode}>
+          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
 
         <button className="btn-icon" title="Notifications">
           <div className="topbar-notification">
