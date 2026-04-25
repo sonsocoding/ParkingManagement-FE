@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../../components/layout/TopBar';
-import { MapPin, Car, Bike, Search, Filter, Clock } from 'lucide-react';
-import { parkingLots, formatCurrency } from '../../data/sampleData';
+import { MapPin, Car, Bike, Search } from 'lucide-react';
+import { useParkingLots } from '../../hooks/useApi';
+import { formatCurrency } from '../../utils/formatters';
 import '../../styles/pages/user/BrowseLots.css';
 
 export default function BrowseLots() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('ALL');
+  const { parkingLots, loading, error } = useParkingLots();
 
   const filtered = parkingLots.filter(lot => {
     const matchSearch = lot.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -46,11 +48,16 @@ export default function BrowseLots() {
           </div>
         </div>
 
+        {loading && <div className="empty-state"><p>Loading parking lots...</p></div>}
+        {error && <div className="empty-state"><p style={{ color: 'var(--color-occupied)' }}>Failed to load lots: {error}</p></div>}
+
         {/* Lots Grid */}
         <div className="lots-grid">
           {filtered.map((lot) => {
-            const occupancy = Math.round(((lot.occupiedSlots + lot.reservedSlots) / lot.totalSlots) * 100);
-            const isLow = lot.availableSlots < 10;
+            const occupied = (lot.occupiedSlots || 0) + (lot.reservedSlots || 0);
+            const total = lot.totalSlots || 1;
+            const occupancy = Math.round((occupied / total) * 100);
+            const isLow = (lot.availableSlots || 0) < 10;
             return (
               <div
                 key={lot.id}
@@ -83,15 +90,15 @@ export default function BrowseLots() {
                   <div className="lot-card-stats">
                     <div className="lot-card-stat">
                       <span className="lot-card-stat-dot available" />
-                      <span>{lot.availableSlots} free</span>
+                      <span>{lot.availableSlots ?? '—'} free</span>
                     </div>
                     <div className="lot-card-stat">
                       <span className="lot-card-stat-dot occupied" />
-                      <span>{lot.occupiedSlots} taken</span>
+                      <span>{lot.occupiedSlots ?? '—'} taken</span>
                     </div>
                     <div className="lot-card-stat">
                       <span className="lot-card-stat-dot reserved" />
-                      <span>{lot.reservedSlots} reserved</span>
+                      <span>{lot.reservedSlots ?? '—'} reserved</span>
                     </div>
                   </div>
 

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
-import { formatCurrency } from '../../../data/sampleData';
+import { formatCurrency } from '../../../utils/formatters';
 
 export default function AvailableLotsList({ lots }) {
   const navigate = useNavigate();
@@ -21,13 +21,18 @@ export default function AvailableLotsList({ lots }) {
               <div>
                 <div className="lot-item-name">{lot.name}</div>
                 <div className="lot-item-meta">
-                  <span className="badge badge-available">{lot.availableSlots} free</span>
-                  <span className="lot-item-total">{formatCurrency(lot.carHourlyRate)}/hr</span>
+                  <span className="badge badge-available">{lot.availableSlots ?? '—'} free</span>
+                  <span className="lot-item-total">
+                    {parseFloat(lot.carHourlyRate) > 0 ? `${formatCurrency(lot.carHourlyRate)}/hr` : ''}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         ))}
+        {lots.length === 0 && (
+          <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '24px' }}>No lots available.</p>
+        )}
       </div>
     </div>
   );

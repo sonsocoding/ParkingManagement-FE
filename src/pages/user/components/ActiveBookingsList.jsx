@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Car, CalendarCheck, Clock, ParkingSquare } from 'lucide-react';
-import { formatCurrency, formatDateTime } from '../../../data/sampleData';
+import { formatCurrency, formatDateTime } from '../../../utils/formatters';
 
 export default function ActiveBookingsList({ bookings }) {
   const navigate = useNavigate();
@@ -22,10 +22,10 @@ export default function ActiveBookingsList({ bookings }) {
           {bookings.map((booking) => (
             <div key={booking.id} className="user-booking-item">
               <div className="user-booking-left">
-                <div className="user-booking-lot">{booking.parkingLot.name}</div>
+                <div className="user-booking-lot">{booking.parkingLot?.name || 'Unknown Lot'}</div>
                 <div className="user-booking-meta">
-                  <span><Car size={14} /> {booking.vehicle.plateNumber}</span>
-                  <span><ParkingSquare size={14} /> Slot {booking.slot.slotNumber}</span>
+                  <span><Car size={14} /> {booking.vehicle?.plateNumber}</span>
+                  <span><ParkingSquare size={14} /> Slot {booking.slot?.slotNumber || booking.parkingSlotId}</span>
                 </div>
                 <div className="user-booking-time">
                   <Clock size={14} />

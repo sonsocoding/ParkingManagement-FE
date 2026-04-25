@@ -1,24 +1,36 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { ParkingCircle, Eye, EyeOff } from 'lucide-react';
-import '../../styles/pages/auth/Auth.css';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { ParkingCircle, Eye, EyeOff } from "lucide-react";
+import "../../styles/pages/auth/Auth.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { login, isAuthenticated } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      login(email, password);
-      navigate('/dashboard');
-    }, 600);
+    setError(null);
+    try {
+      await login(email, password);
+      navigate("/");
+    } catch (err) {
+      setError(err?.message || "Invalid email or password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,11 +39,13 @@ export default function LoginPage() {
         <div className="auth-left-content">
           <div className="auth-hero-badge">🅿️ Smart Parking</div>
           <h1 className="auth-hero-title">
-            Park smarter,<br />not harder.
+            Park smarter,
+            <br />
+            not harder.
           </h1>
           <p className="auth-hero-subtitle">
-            Find, book, and manage parking spots with ease.
-            Real-time availability, instant booking, and seamless payments.
+            Find, book, and manage parking spots with ease. Real-time availability, instant booking,
+            and seamless payments.
           </p>
           <div className="auth-hero-stats">
             <div className="auth-hero-stat">
@@ -79,7 +93,7 @@ export default function LoginPage() {
               <label className="form-label">Password</label>
               <div className="auth-password-wrap">
                 <input
-                  type={showPass ? 'text' : 'password'}
+                  type={showPass ? "text" : "password"}
                   className="form-input"
                   placeholder="Enter your password"
                   value={password}
@@ -96,20 +110,28 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="auth-options">
-              <label className="auth-remember">
-                <input type="checkbox" />
-                <span>Remember me</span>
-              </label>
-              <a href="#" className="auth-forgot">Forgot password?</a>
-            </div>
+            {error && (
+              <div
+                style={{
+                  color: "var(--color-occupied)",
+                  fontSize: "13px",
+                  marginBottom: "8px",
+                  padding: "8px 12px",
+                  background: "rgba(220,38,38,0.08)",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(220,38,38,0.2)",
+                }}
+              >
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"
-              className={`btn btn-primary btn-lg w-full ${loading ? 'btn-loading' : ''}`}
+              className={`btn btn-primary btn-lg w-full ${loading ? "btn-loading" : ""}`}
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 

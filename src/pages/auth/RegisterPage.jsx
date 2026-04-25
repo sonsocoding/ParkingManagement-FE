@@ -1,25 +1,53 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { ParkingCircle, Eye, EyeOff } from 'lucide-react';
-import '../../styles/pages/auth/Auth.css';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ParkingCircle, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../api/index";
+import "../../styles/pages/auth/Auth.css";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const { isAuthenticated } = useAuth();
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setLoading(true);
-    setTimeout(() => {
-      login(form.email, form.password);
-      navigate('/dashboard');
-    }, 600);
+    setError(null);
+    try {
+      await authService.register({
+        fullName: form.fullName,
+        email: form.email,
+        phone: form.phone || undefined,
+        password: form.password,
+      });
+      navigate("/login");
+    } catch (err) {
+      setError(err?.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,11 +56,13 @@ export default function RegisterPage() {
         <div className="auth-left-content">
           <div className="auth-hero-badge">🅿️ Smart Parking</div>
           <h1 className="auth-hero-title">
-            Join the smart<br />parking revolution.
+            Join the smart
+            <br />
+            parking revolution.
           </h1>
           <p className="auth-hero-subtitle">
-            Create your account and start booking parking spots in seconds.
-            No more circling the block.
+            Create your account and start booking parking spots in seconds. No more circling the
+            block.
           </p>
           <div className="auth-hero-stats">
             <div className="auth-hero-stat">
@@ -66,25 +96,60 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
               <label className="form-label">Full name</label>
-              <input type="text" name="fullName" className="form-input" placeholder="Nguyen Van A" value={form.fullName} onChange={handleChange} required />
+              <input
+                type="text"
+                name="fullName"
+                className="form-input"
+                placeholder="Nguyen Van A"
+                value={form.fullName}
+                onChange={handleChange}
+                required
+              />
             </div>
 
             <div className="auth-form-row">
               <div className="form-group">
                 <label className="form-label">Email address</label>
-                <input type="email" name="email" className="form-input" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
+                <input
+                  type="email"
+                  name="email"
+                  className="form-input"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                />
               </div>
               <div className="form-group">
                 <label className="form-label">Phone (optional)</label>
-                <input type="tel" name="phone" className="form-input" placeholder="0901234567" value={form.phone} onChange={handleChange} />
+                <input
+                  type="tel"
+                  name="phone"
+                  className="form-input"
+                  placeholder="0901234567"
+                  value={form.phone}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
             <div className="form-group">
               <label className="form-label">Password</label>
               <div className="auth-password-wrap">
-                <input type={showPass ? 'text' : 'password'} name="password" className="form-input" placeholder="Min. 8 characters" value={form.password} onChange={handleChange} required />
-                <button type="button" className="auth-password-toggle" onClick={() => setShowPass(!showPass)}>
+                <input
+                  type={showPass ? "text" : "password"}
+                  name="password"
+                  className="form-input"
+                  placeholder="Min. 8 characters"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle"
+                  onClick={() => setShowPass(!showPass)}
+                >
                   {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
@@ -92,11 +157,39 @@ export default function RegisterPage() {
 
             <div className="form-group">
               <label className="form-label">Confirm password</label>
-              <input type="password" name="confirmPassword" className="form-input" placeholder="Re-enter your password" value={form.confirmPassword} onChange={handleChange} required />
+              <input
+                type="password"
+                name="confirmPassword"
+                className="form-input"
+                placeholder="Re-enter your password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                required
+              />
             </div>
 
-            <button type="submit" className={`btn btn-primary btn-lg w-full ${loading ? 'btn-loading' : ''}`} disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
+            {error && (
+              <div
+                style={{
+                  color: "var(--color-occupied)",
+                  fontSize: "13px",
+                  marginBottom: "8px",
+                  padding: "8px 12px",
+                  background: "rgba(220,38,38,0.08)",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(220,38,38,0.2)",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className={`btn btn-primary btn-lg w-full ${loading ? "btn-loading" : ""}`}
+              disabled={loading}
+            >
+              {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
 

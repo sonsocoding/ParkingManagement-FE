@@ -1,11 +1,47 @@
 import { useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { Car, Bike, Plus, Pencil, Trash2, X } from 'lucide-react';
-import { vehicles } from '../../data/sampleData';
+import { useMyVehicles } from '../../hooks/useApi';
+import { vehicleService } from '../../api/index';
 import '../../styles/pages/user/MyVehicles.css';
 
 export default function MyVehicles() {
+  const { vehicles, loading, error, setVehicles } = useMyVehicles();
   const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ vehicleType: 'CAR', plateNumber: '', color: '' });
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState(null);
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setFormError(null);
+    try {
+      const res = await vehicleService.addVehicle(form);
+      const newVehicle = res.data?.vehicle || res.data;
+      if (newVehicle) {
+        setVehicles(prev => ({ ...prev, vehicles: [...(prev?.vehicles || vehicles), newVehicle] }));
+      }
+      setShowModal(false);
+      setForm({ vehicleType: 'CAR', plateNumber: '', color: '' });
+    } catch (err) {
+      setFormError(err?.message || 'Failed to add vehicle.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (vehicleId) => {
+    if (!window.confirm('Delete this vehicle?')) return;
+    try {
+      await vehicleService.deleteVehicle(vehicleId);
+      setVehicles(prev => ({ ...prev, vehicles: (prev?.vehicles || vehicles).filter(v => v.id !== vehicleId) }));
+    } catch (err) {
+      alert(err?.message || 'Failed to delete vehicle.');
+    }
+  };
 
   return (
     <>
@@ -19,6 +55,9 @@ export default function MyVehicles() {
         }
       />
       <div className="page-content">
+        {loading && <p>Loading vehicles...</p>}
+        {error && <p style={{ color: 'var(--color-occupied)' }}>Error: {error}</p>}
+
         <div className="vehicles-grid">
           {vehicles.map((v) => (
             <div key={v.id} className="vehicle-card card">
@@ -35,8 +74,9 @@ export default function MyVehicles() {
                 </div>
               </div>
               <div className="vehicle-card-actions">
-                <button className="btn-icon" title="Edit"><Pencil size={16} /></button>
-                <button className="btn-icon" title="Delete" style={{ color: 'var(--color-occupied)' }}><Trash2 size={16} /></button>
+                <button className="btn-icon" title="Delete" style={{ color: 'var(--color-occupied)' }} onClick={() => handleDelete(v.id)}>
+                  <Trash2 size={16} />
+                </button>
               </div>
             </div>
           ))}
@@ -47,9 +87,8 @@ export default function MyVehicles() {
             <span>Add new vehicle</span>
           </div>
         </div>
-
       </div>
-      
+
       {/* Add Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
@@ -58,27 +97,28 @@ export default function MyVehicles() {
               <h3 className="headline-sm">Add Vehicle</h3>
               <button className="btn-icon" onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
-            <form className="modal-body">
+            <form className="modal-body" onSubmit={handleAdd}>
               <div className="form-group">
                 <label className="form-label">Vehicle Type</label>
-                <select className="form-select">
+                <select className="form-select" name="vehicleType" value={form.vehicleType} onChange={handleChange}>
                   <option value="CAR">Car</option>
                   <option value="MOTORBIKE">Motorbike</option>
                 </select>
               </div>
               <div className="form-group">
                 <label className="form-label">Plate Number</label>
-                <input className="form-input" placeholder="e.g. 29A-12345" />
+                <input className="form-input" name="plateNumber" placeholder="e.g. 29A-12345" value={form.plateNumber} onChange={handleChange} required />
               </div>
               <div className="form-group">
                 <label className="form-label">Color (optional)</label>
-                <input className="form-input" placeholder="e.g. White, Black" />
+                <input className="form-input" name="color" placeholder="e.g. White, Black" value={form.color} onChange={handleChange} />
+              </div>
+              {formError && <p style={{ color: 'var(--color-occupied)', fontSize: '13px' }}>{formError}</p>}
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Adding...' : 'Add Vehicle'}</button>
               </div>
             </form>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={() => setShowModal(false)}>Add Vehicle</button>
-            </div>
           </div>
         </div>
       )}

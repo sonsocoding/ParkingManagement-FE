@@ -1,7 +1,7 @@
 import TopBar from '../../components/layout/TopBar';
 import StatCard from '../../components/shared/StatCard';
 import { CalendarCheck, CreditCard, ParkingSquare } from 'lucide-react';
-import { formatCurrency } from '../../data/sampleData';
+import { formatCurrency } from '../../utils/formatters';
 import QuickActions from './components/QuickActions';
 import ActiveBookingsList from './components/ActiveBookingsList';
 import AvailableLotsList from './components/AvailableLotsList';
@@ -13,8 +13,20 @@ export default function UserDashboard() {
     activeBookings, 
     activeRecords, 
     parkingLots, 
-    totalSpentThisMonth 
+    totalSpentThisMonth,
+    loading
   } = useUserDashboard();
+
+  if (loading) {
+    return (
+      <>
+        <TopBar title="Dashboard" subtitle="Overview of your parking activity" />
+        <div className="page-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+          <div>Loading...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

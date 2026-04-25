@@ -1,46 +1,83 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TopBar from '../../components/layout/TopBar';
-import { parkingLots, parkingSlots } from '../../data/sampleData';
+import { useAllLots } from '../../hooks/useApi';
+import { useFetchData } from '../../hooks/useApi';
+import { lotService, slotService } from '../../api/index';
 import { Monitor, Wrench } from 'lucide-react';
 import '../../styles/pages/admin/StaffMonitoring.css';
 
 export default function StaffMonitoring() {
-  const [selectedLot, setSelectedLot] = useState(parkingLots[0]?.id);
-  
-  const currentLot = parkingLots.find(l => l.id === selectedLot);
-  const slots = parkingSlots[selectedLot] || [];
+  const { lots, loading: lotsLoading } = useAllLots();
+  const [selectedLotId, setSelectedLotId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Derive selected lot (default to first when lots load)
+  const currentLotId = selectedLotId ?? (lots[0]?.id || null);
+  const currentLot = lots.find(l => l.id === currentLotId);
+
+  const { data: slotsData, loading: slotsLoading } = useFetchData(
+    currentLotId ? () => lotService.getSlotsByLotId(currentLotId) : null,
+    [currentLotId, refreshKey]
+  );
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
+
+  // Auto refresh every 30 seconds
+  useEffect(() => {
+    const timer = setInterval(handleRefresh, 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const slots = slotsData?.parkingSlots || [];
+
+  const zones = currentLot?.zones
+    ? (Array.isArray(currentLot.zones) 
+        ? currentLot.zones 
+        : typeof currentLot.zones === 'object'
+          ? [...(currentLot.zones.carZones || []), ...(currentLot.zones.motoZones || [])]
+          : [currentLot.zones])
+    : [...new Set(slots.map(s => s.zoneId))];
 
   return (
     <>
-      <TopBar 
-        title="Staff Monitoring" 
+      <TopBar
+        title="Staff Monitoring"
         subtitle="Real-time operational view of parking slots"
+        actions={
+          <button className="btn btn-secondary btn-sm" onClick={handleRefresh} disabled={slotsLoading}>
+            <Monitor size={16} /> {slotsLoading ? 'Refreshing...' : 'Refresh Now'}
+          </button>
+        }
       />
       <div className="page-content">
         <div className="monitoring-header card">
           <div className="form-group" style={{ maxWidth: '300px' }}>
             <label className="form-label">Select Facility</label>
-            <select 
-              className="form-select" 
-              value={selectedLot} 
-              onChange={(e) => setSelectedLot(e.target.value)}
-            >
-              {parkingLots.map(lot => (
-                <option key={lot.id} value={lot.id}>{lot.name}</option>
-              ))}
-            </select>
+            {lotsLoading ? (
+              <select className="form-select" disabled><option>Loading...</option></select>
+            ) : (
+              <select
+                className="form-select"
+                value={currentLotId || ''}
+                onChange={(e) => setSelectedLotId(e.target.value)}
+              >
+                {lots.map(lot => (
+                  <option key={lot.id} value={lot.id}>{lot.name}</option>
+                ))}
+              </select>
+            )}
           </div>
           <div className="monitoring-stats">
             <div className="monitoring-stat">
-              <span className="monitoring-stat-val text-available">{currentLot?.availableSlots}</span>
+              <span className="monitoring-stat-val text-available">{currentLot?.availableSlots ?? '—'}</span>
               <span className="monitoring-stat-label">Available</span>
             </div>
             <div className="monitoring-stat">
-              <span className="monitoring-stat-val text-occupied">{currentLot?.occupiedSlots}</span>
+              <span className="monitoring-stat-val text-occupied">{currentLot?.occupiedSlots ?? '—'}</span>
               <span className="monitoring-stat-label">Occupied</span>
             </div>
             <div className="monitoring-stat">
-              <span className="monitoring-stat-val text-reserved">{currentLot?.reservedSlots}</span>
+              <span className="monitoring-stat-val text-reserved">{currentLot?.reservedSlots ?? '—'}</span>
               <span className="monitoring-stat-label">Reserved</span>
             </div>
           </div>
@@ -53,15 +90,17 @@ export default function StaffMonitoring() {
             <div className="legend-item"><span className="slot-dot reserved" /> Reserved</div>
             <div className="legend-item"><span className="slot-dot maintenance" /> Maintenance</div>
           </div>
-          
+
+          {slotsLoading && <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '40px' }}>Loading slots...</p>}
+
           <div className="monitoring-zones">
-            {currentLot?.zones.map(zone => (
+            {zones.map(zone => (
               <div key={zone} className="monitoring-zone">
                 <h3 className="zone-title">Zone {zone}</h3>
                 <div className="monitoring-slot-grid">
                   {slots.filter(s => s.zoneId === zone).map(slot => (
-                    <div 
-                      key={slot.id} 
+                    <div
+                      key={slot.id}
                       className={`monitoring-slot monitoring-${slot.status.toLowerCase()}`}
                       title={`${slot.slotNumber} - ${slot.status}`}
                     >
@@ -72,6 +111,9 @@ export default function StaffMonitoring() {
                 </div>
               </div>
             ))}
+            {!slotsLoading && slots.length === 0 && (
+              <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '40px' }}>No slot data for this lot.</p>
+            )}
           </div>
         </div>
       </div>

@@ -2,20 +2,51 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/layout/TopBar';
 import { MapPin, Car, Bike, Info, ArrowLeft, Wrench } from 'lucide-react';
-import { parkingLots, parkingSlots, formatCurrency } from '../../data/sampleData';
+import { useParkingLot, useLotSlots, useMyVehicles } from '../../hooks/useApi';
+import { formatCurrency } from '../../utils/formatters';
+import { bookingService } from '../../api/index';
 import '../../styles/pages/user/LotDetail.css';
 
 export default function LotDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const lot = parkingLots.find(l => l.id === id) || parkingLots[0];
-  const slots = parkingSlots[lot.id] || [];
-  
+
+  const { lot, loading: lotLoading } = useParkingLot(id);
+  const { slots, loading: slotsLoading } = useLotSlots(id);
+  const { vehicles } = useMyVehicles();
+
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState('ALL');
+  const [duration, setDuration] = useState(1);
+  const [selectedVehicleId, setSelectedVehicleId] = useState('');
+  const [booking, setBooking] = useState(false);
+  const [bookError, setBookError] = useState(null);
 
-  // Group slots by zone
-  const zones = lot.zones.map(zoneName => ({
+  if (lotLoading || slotsLoading) {
+    return (
+      <>
+        <TopBar title="Loading..." subtitle="" />
+        <div className="page-content"><p>Loading lot details...</p></div>
+      </>
+    );
+  }
+
+  if (!lot) {
+    return (
+      <>
+        <TopBar title="Not Found" subtitle="" />
+        <div className="page-content"><p>Parking lot not found.</p></div>
+      </>
+    );
+  }
+
+  const rawZones = Array.isArray(lot.zones) 
+    ? lot.zones 
+    : typeof lot.zones === 'object' && lot.zones !== null
+      ? [...(lot.zones.carZones || []), ...(lot.zones.motoZones || [])]
+      : [];
+
+  const zones = rawZones.map(zoneName => ({
     name: zoneName,
     slots: slots.filter(s => s.zoneId === zoneName && (vehicleTypeFilter === 'ALL' || s.vehicleType === vehicleTypeFilter))
   }));
@@ -23,19 +54,50 @@ export default function LotDetail() {
   const handleSlotClick = (slot) => {
     if (slot.status === 'AVAILABLE') {
       setSelectedSlot(slot.id === selectedSlot ? null : slot.id);
+      setBookError(null);
+    }
+  };
+
+  const selectedSlotObj = slots.find(s => s.id === selectedSlot);
+  const rate = selectedSlotObj?.vehicleType === 'MOTORBIKE'
+    ? parseFloat(lot.motorbikeHourlyRate)
+    : parseFloat(lot.carHourlyRate);
+  const estimatedCost = rate * duration;
+
+  const handleConfirmBooking = async () => {
+    if (!selectedVehicleId) { setBookError('Please select a vehicle.'); return; }
+    if (!selectedSlot) { setBookError('Please select a slot.'); return; }
+    setBooking(true);
+    setBookError(null);
+    try {
+      const startTime = new Date();
+      const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
+      await bookingService.createBooking({
+        parkingSlotId: selectedSlot,
+        parkingLotId: id,
+        vehicleId: selectedVehicleId,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        paymentMethod: 'CASH',
+      });
+      navigate('/my-bookings');
+    } catch (err) {
+      setBookError(err?.message || 'Booking failed. Please try again.');
+    } finally {
+      setBooking(false);
     }
   };
 
   return (
     <>
-      <TopBar 
+      <TopBar
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button className="btn-icon" onClick={() => navigate(-1)}><ArrowLeft size={20} /></button>
             {lot.name}
           </div>
-        } 
-        subtitle={lot.address} 
+        }
+        subtitle={lot.address}
       />
       <div className="page-content lot-detail-content">
         <div className="lot-detail-main">
@@ -50,8 +112,8 @@ export default function LotDetail() {
             {lot.lotType === 'BOTH' && (
               <div className="slot-filters">
                 {['ALL', 'CAR', 'MOTORBIKE'].map(type => (
-                  <button 
-                    key={type} 
+                  <button
+                    key={type}
                     className={`btn btn-sm ${vehicleTypeFilter === type ? 'btn-primary' : 'btn-secondary'}`}
                     onClick={() => setVehicleTypeFilter(type)}
                   >
@@ -64,6 +126,7 @@ export default function LotDetail() {
 
           {/* Slot Map */}
           <div className="slot-map-container card">
+            {zones.length === 0 && <p style={{ color: 'var(--text-tertiary)', textAlign: 'center' }}>No slot data available.</p>}
             {zones.map(zone => (
               <div key={zone.name} className="slot-zone">
                 <h3 className="zone-title">Zone {zone.name}</h3>
@@ -97,7 +160,7 @@ export default function LotDetail() {
         <div className="lot-detail-sidebar">
           <div className="card sticky-booking-card">
             <h3 className="headline-sm" style={{ marginBottom: '16px' }}>Booking Summary</h3>
-            
+
             <div className="lot-rates">
               {parseFloat(lot.carHourlyRate) > 0 && (
                 <div className="rate-item">
@@ -117,32 +180,49 @@ export default function LotDetail() {
               <div className="booking-form">
                 <div className="selected-slot-info">
                   <div className="selected-slot-label">Selected Slot</div>
-                  <div className="selected-slot-val">{slots.find(s => s.id === selectedSlot)?.slotNumber}</div>
+                  <div className="selected-slot-val">{selectedSlotObj?.slotNumber}</div>
                 </div>
-                
+
                 <div className="form-group">
                   <label className="form-label">Duration (Hours)</label>
-                  <select className="form-select">
+                  <select className="form-select" value={duration} onChange={e => setDuration(Number(e.target.value))}>
                     {[1, 2, 3, 4, 8, 12, 24].map(h => (
                       <option key={h} value={h}>{h} Hour{h > 1 ? 's' : ''}</option>
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="form-group">
                   <label className="form-label">Vehicle</label>
-                  <select className="form-select">
+                  <select className="form-select" value={selectedVehicleId} onChange={e => setSelectedVehicleId(e.target.value)}>
                     <option value="">Select a vehicle...</option>
-                    <option value="1">29A-12345 (Car)</option>
+                    {vehicles
+                      .filter(v => v.vehicleType === selectedSlotObj?.vehicleType)
+                      .map(v => (
+                        <option key={v.id} value={v.id}>{v.plateNumber} ({v.vehicleType})</option>
+                      ))}
                   </select>
+                  {vehicles.filter(v => v.vehicleType === selectedSlotObj?.vehicleType).length === 0 && (
+                    <p style={{ color: 'var(--color-occupied)', fontSize: '11px', marginTop: '4px' }}>
+                      No {selectedSlotObj?.vehicleType?.toLowerCase()}s registered.
+                    </p>
+                  )}
                 </div>
 
                 <div className="booking-total">
                   <span>Estimated Total</span>
-                  <span className="total-amount">{formatCurrency(lot.carHourlyRate)}</span>
+                  <span className="total-amount">{formatCurrency(estimatedCost)}</span>
                 </div>
 
-                <button className="btn btn-primary w-full btn-lg">Confirm Booking</button>
+                {bookError && <p style={{ color: 'var(--color-occupied)', fontSize: '13px', marginBottom: '8px' }}>{bookError}</p>}
+
+                <button
+                  className="btn btn-primary w-full btn-lg"
+                  onClick={handleConfirmBooking}
+                  disabled={booking}
+                >
+                  {booking ? 'Booking...' : 'Confirm Booking'}
+                </button>
               </div>
             ) : (
               <div className="empty-state" style={{ padding: '40px 20px' }}>
@@ -151,10 +231,10 @@ export default function LotDetail() {
                 <p style={{ fontSize: '13px' }}>Please select an available slot from the map to proceed with booking.</p>
               </div>
             )}
-            
+
             <div className="booking-notice">
               <Info size={14} />
-              <span>Payments are currently collected in cash upon arrival.</span>
+              <span>Payments are collected in cash upon arrival.</span>
             </div>
           </div>
         </div>

@@ -1,12 +1,17 @@
 import TopBar from '../../components/layout/TopBar';
-import { CreditCard, ArrowUpRight } from 'lucide-react';
-import { payments, formatCurrency, formatDateTime } from '../../data/sampleData';
+import { useMyPayments } from '../../hooks/useApi';
+import { formatCurrency, formatDateTime } from '../../utils/formatters';
 
 export default function MyPayments() {
+  const { payments, loading, error } = useMyPayments();
+
   return (
     <>
       <TopBar title="My Payments" subtitle="Payment history and receipts" />
       <div className="page-content">
+        {loading && <p style={{ textAlign: 'center', padding: '40px' }}>Loading payments...</p>}
+        {error && <p style={{ color: 'var(--color-occupied)', textAlign: 'center' }}>Error: {error}</p>}
+
         <div className="card">
           <table className="data-table">
             <thead>
@@ -28,6 +33,9 @@ export default function MyPayments() {
                   <td><span className={`badge badge-${p.status.toLowerCase()}`}>{p.status}</span></td>
                 </tr>
               ))}
+              {!loading && payments.length === 0 && (
+                <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '32px' }}>No payment records yet.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
