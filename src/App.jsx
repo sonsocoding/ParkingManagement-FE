@@ -48,7 +48,7 @@ export default function App() {
         <Route path="my-payments" element={<MyPayments />} />
         <Route path="monthly-passes" element={<MonthlyPasses />} />
 
-        {/* Admin/Manager Routes */}
+        {/* Admin Routes */}
         <Route path="admin">
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />

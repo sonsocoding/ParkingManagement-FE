@@ -23,7 +23,6 @@ export default function TopBar({ title, subtitle, actions }) {
             onChange={(e) => switchRole(e.target.value)}
           >
             <option value="USER">👤 USER</option>
-            <option value="MANAGER">👔 MANAGER</option>
             <option value="ADMIN">🔑 ADMIN</option>
           </select>
         </div>

@@ -15,7 +15,7 @@ A production-grade REST API for a smart parking management system. Built with No
 
 ## Architecture Highlights
 
-- **Role-Based Access Control** — three roles (`ADMIN`, `MANAGER`, `USER`) enforced per route via composable middleware chain: `authenticate → authorize → validate → controller`
+- **Role-Based Access Control** — two roles (`ADMIN`, `USER`) enforced per route via composable middleware chain: `authenticate → authorize → validate → controller`
 - **Atomic Transactions** — all multi-step state changes (booking creation, slot reservation, payment creation, check-in/out) are wrapped in `prisma.$transaction()` to prevent race conditions and data corruption
 - **State Machine Guards** — explicit allowed-transition maps for `Booking` (`PENDING_PAYMENT → CONFIRMED → COMPLETED`) and `Payment` (`PENDING → SUCCESS → REFUNDED`) prevent illegal state jumps
 - **Global Error Handler** — maps Prisma error codes (P2002, P2025, P2003) to correct HTTP status codes with clean `{ status, message }` response shape
@@ -58,7 +58,7 @@ Booking created → VNPay payment initiated → IPN webhook (public endpoint) re
 npm install
 # configure .env: DATABASE_URL, JWT_SECRET, FRONTEND_URL
 npx prisma migrate dev
-npm run seed     # seed admin/manager/user + sample data
+npm run seed     # seed admin/user + sample data
 npm run dev
 ```
 

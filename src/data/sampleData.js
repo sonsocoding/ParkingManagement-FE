@@ -5,13 +5,13 @@ export const currentUser = {
   email: 'nguyen.van.a@example.com',
   fullName: 'Nguyen Van A',
   phone: '0901234567',
-  role: 'ADMIN', // Change to 'USER' or 'MANAGER' to test different views
+  role: 'ADMIN', // Change to 'USER' to test different views
   createdAt: '2025-01-15T08:00:00Z',
 };
 
 export const users = [
   { id: 'cluser001', email: 'nguyen.van.a@example.com', fullName: 'Nguyen Van A', phone: '0901234567', role: 'ADMIN', createdAt: '2025-01-15T08:00:00Z' },
-  { id: 'cluser002', email: 'tran.thi.b@example.com', fullName: 'Tran Thi B', phone: '0912345678', role: 'MANAGER', createdAt: '2025-02-20T10:30:00Z' },
+  { id: 'cluser002', email: 'tran.thi.b@example.com', fullName: 'Tran Thi B', phone: '0912345678', role: 'USER', createdAt: '2025-02-20T10:30:00Z' },
   { id: 'cluser003', email: 'le.van.c@example.com', fullName: 'Le Van C', phone: '0923456789', role: 'USER', createdAt: '2025-03-10T14:00:00Z' },
   { id: 'cluser004', email: 'pham.thi.d@example.com', fullName: 'Pham Thi D', phone: '0934567890', role: 'USER', createdAt: '2025-03-25T09:15:00Z' },
   { id: 'cluser005', email: 'hoang.van.e@example.com', fullName: 'Hoang Van E', phone: '0945678901', role: 'USER', createdAt: '2025-04-01T16:45:00Z' },

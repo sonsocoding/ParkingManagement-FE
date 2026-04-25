@@ -420,7 +420,6 @@ ul, ol {
 .badge-active { background: var(--color-available-bg); color: var(--color-available-text); }
 .badge-expired { background: var(--color-maintenance-bg); color: var(--color-maintenance-text); }
 .badge-admin { background: #EDE7F6; color: #4527A0; }
-.badge-manager { background: #E3F2FD; color: #1565C0; }
 .badge-user { background: var(--surface-card-hover); color: var(--text-secondary); }
 .badge-car { background: #E3F2FD; color: #1565C0; }
 .badge-motorbike { background: #FFF3E0; color: #E65100; }

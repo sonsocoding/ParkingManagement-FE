@@ -24,7 +24,7 @@ The application relies on role-based access control. Currently, roles can be sim
 - **Manage Entities (`/my-vehicles`, `/my-bookings`):** Users add/edit license plates and track their current, upcoming, or past bookings.
 - **Payments (`/my-payments`):** Users simulate paying for confirmed bookings (e.g., using CASH or simulated VNPay).
 
-### 3.2. Enterprise Flow (`ADMIN` / `MANAGER`)
+### 3.2. Enterprise Flow (`ADMIN`)
 - **Admin Dashboard (`/admin/dashboard`):** Global analytics on revenue, occupancy rates, and active parking sessions.
 - **Operational Management (`/admin/lots`, `/admin/bookings`):** Add/edit parking lots, manually adjust booking statuses, and manage slots.
 - **User Management (`/admin/users`):** Administer user accounts, permissions, and staff monitoring.

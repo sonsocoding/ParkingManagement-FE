@@ -26,21 +26,11 @@ const adminNav = [
   { to: '/admin/monitoring', icon: Monitor, label: 'Staff Monitoring' },
 ];
 
-const managerNav = [
-  { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/admin/users', icon: Users, label: 'Users (View)' },
-  { to: '/admin/lots', icon: Building2, label: 'Lots (View)' },
-  { to: '/admin/bookings', icon: CalendarCheck, label: 'Bookings (View)' },
-  { to: '/admin/payments', icon: CreditCard, label: 'Payments (View)' },
-  { to: '/admin/monitoring', icon: Monitor, label: 'Monitoring' },
-];
-
 export default function Sidebar({ collapsed, onToggle }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const navItems = user?.role === 'ADMIN' ? adminNav :
-                   user?.role === 'MANAGER' ? managerNav : userNav;
+  const navItems = user?.role === 'ADMIN' ? adminNav : userNav;
 
   const handleLogout = () => {
     logout();
