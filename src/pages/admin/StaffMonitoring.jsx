@@ -5,6 +5,7 @@ import { useFetchData } from '../../hooks/useApi';
 import { lotService, slotService } from '../../api/index';
 import { Monitor, Wrench } from 'lucide-react';
 import '../../styles/pages/admin/StaffMonitoring.css';
+import { getZoneKey, normalizeZones } from '../../utils/parkingZones';
 
 export default function StaffMonitoring() {
   const { lots, loading: lotsLoading } = useAllLots();
@@ -31,12 +32,8 @@ export default function StaffMonitoring() {
   const slots = slotsData?.parkingSlots || [];
 
   const zones = currentLot?.zones
-    ? (Array.isArray(currentLot.zones) 
-        ? currentLot.zones 
-        : typeof currentLot.zones === 'object'
-          ? [...(currentLot.zones.carZones || []), ...(currentLot.zones.motoZones || [])]
-          : [currentLot.zones])
-    : [...new Set(slots.map(s => s.zoneId))];
+    ? normalizeZones(currentLot.zones)
+    : normalizeZones(slots.map((slot) => slot.zoneId));
 
   return (
     <>
@@ -94,11 +91,11 @@ export default function StaffMonitoring() {
           {slotsLoading && <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '40px' }}>Loading slots...</p>}
 
           <div className="monitoring-zones">
-            {zones.map(zone => (
-              <div key={zone} className="monitoring-zone">
-                <h3 className="zone-title">Zone {zone}</h3>
+            {zones.map((zone) => (
+              <div key={zone.key} className="monitoring-zone">
+                <h3 className="zone-title">Zone {zone.label}</h3>
                 <div className="monitoring-slot-grid">
-                  {slots.filter(s => s.zoneId === zone).map(slot => (
+                  {slots.filter((slot) => getZoneKey(slot.zoneId) === zone.key).map((slot) => (
                     <div
                       key={slot.id}
                       className={`monitoring-slot monitoring-${slot.status.toLowerCase()}`}

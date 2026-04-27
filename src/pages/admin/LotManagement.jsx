@@ -3,6 +3,7 @@ import TopBar from '../../components/layout/TopBar';
 import { useAllLots } from '../../hooks/useApi';
 import { lotService } from '../../api/index';
 import { Plus, Edit2, Trash2, Settings, MapPin } from 'lucide-react';
+import { normalizeZones } from '../../utils/parkingZones';
 
 export default function LotManagement() {
   const { lots, loading, error } = useAllLots();
@@ -76,13 +77,7 @@ export default function LotManagement() {
                     {lot.zones && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                         <span className="text-secondary">Zones:</span>
-                        <span>
-                          {Array.isArray(lot.zones) 
-                            ? lot.zones.join(', ') 
-                            : typeof lot.zones === 'object' 
-                              ? [...(lot.zones.carZones || []), ...(lot.zones.motoZones || [])].join(', ')
-                              : lot.zones}
-                        </span>
+                        <span>{normalizeZones(lot.zones).map((zone) => zone.label).join(', ')}</span>
                       </div>
                     )}
                   </div>

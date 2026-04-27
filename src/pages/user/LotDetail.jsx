@@ -5,6 +5,7 @@ import { MapPin, Car, Bike, Info, ArrowLeft, Wrench } from 'lucide-react';
 import { useParkingLot, useLotSlots, useMyVehicles } from '../../hooks/useApi';
 import { formatCurrency } from '../../utils/formatters';
 import { bookingService } from '../../api/index';
+import { getZoneKey, normalizeZones } from '../../utils/parkingZones';
 import '../../styles/pages/user/LotDetail.css';
 
 export default function LotDetail() {
@@ -40,15 +41,12 @@ export default function LotDetail() {
     );
   }
 
-  const rawZones = Array.isArray(lot.zones) 
-    ? lot.zones 
-    : typeof lot.zones === 'object' && lot.zones !== null
-      ? [...(lot.zones.carZones || []), ...(lot.zones.motoZones || [])]
-      : [];
-
-  const zones = rawZones.map(zoneName => ({
-    name: zoneName,
-    slots: slots.filter(s => s.zoneId === zoneName && (vehicleTypeFilter === 'ALL' || s.vehicleType === vehicleTypeFilter))
+  const zones = normalizeZones(lot.zones).map((zone) => ({
+    ...zone,
+    slots: slots.filter(
+      (slot) => getZoneKey(slot.zoneId) === zone.key
+        && (vehicleTypeFilter === 'ALL' || slot.vehicleType === vehicleTypeFilter)
+    )
   }));
 
   const handleSlotClick = (slot) => {
@@ -127,9 +125,9 @@ export default function LotDetail() {
           {/* Slot Map */}
           <div className="slot-map-container card">
             {zones.length === 0 && <p style={{ color: 'var(--text-tertiary)', textAlign: 'center' }}>No slot data available.</p>}
-            {zones.map(zone => (
-              <div key={zone.name} className="slot-zone">
-                <h3 className="zone-title">Zone {zone.name}</h3>
+            {zones.map((zone) => (
+              <div key={zone.key} className="slot-zone">
+                <h3 className="zone-title">Zone {zone.label}</h3>
                 <div className="slot-grid">
                   {zone.slots.map(slot => (
                     <button
