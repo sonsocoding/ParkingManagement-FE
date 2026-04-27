@@ -28,7 +28,10 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     recordService.getAllRecords()
-      .then(res => setActiveRecords((res.data?.records || []).filter(r => r.status === 'CHECKED_IN')))
+      .then((res) => {
+        const parkingRecords = Array.isArray(res.data?.parkingRecords) ? res.data.parkingRecords : [];
+        setActiveRecords(parkingRecords.filter((parkingRecord) => parkingRecord.status === 'CHECKED_IN'));
+      })
       .catch(() => {})
       .finally(() => setRecordsLoading(false));
   }, []);

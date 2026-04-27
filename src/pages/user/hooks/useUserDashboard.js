@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
 import { bookingService, recordService, lotService, paymentService } from '../../../api/index';
+import {
+  normalizeBookingsPayload,
+  normalizeLotsPayload,
+  normalizePaymentsPayload,
+  normalizeRecordsPayload,
+} from '../../../utils/apiNormalizers';
 
 export function useUserDashboard() {
   const [activeBookings, setActiveBookings] = useState([]);
@@ -21,16 +27,16 @@ export function useUserDashboard() {
         
         if (!isMounted) return;
 
-        const myBookings = bookingsRes.data?.bookings || [];
+        const myBookings = normalizeBookingsPayload(bookingsRes.data);
         setActiveBookings(myBookings.filter(b => b.status === 'CONFIRMED'));
         
-        const myRecords = recordsRes.data?.records || [];
-        setActiveRecords(myRecords.filter(r => r.status === 'CHECKED_IN'));
+        const parkingRecords = normalizeRecordsPayload(recordsRes.data);
+        setActiveRecords(parkingRecords.filter((parkingRecord) => parkingRecord.status === 'CHECKED_IN'));
         
-        setParkingLots(lotsRes.data?.parkingLots || []);
+        setParkingLots(normalizeLotsPayload(lotsRes.data));
         
         // Calculate total spent this month
-        const myPayments = paymentsRes.data?.payments || [];
+        const myPayments = normalizePaymentsPayload(paymentsRes.data);
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         

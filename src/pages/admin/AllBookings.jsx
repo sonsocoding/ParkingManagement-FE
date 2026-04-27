@@ -22,7 +22,7 @@ export default function AllBookings() {
     if (!window.confirm(`Change status to ${next}?`)) return;
     setUpdatingId(bookingId);
     try {
-      await bookingService.adminUpdateBooking(bookingId, { status: next });
+      await bookingService.adminUpdateBookingStatus(bookingId, next);
       window.location.reload();
     } catch (err) {
       alert(err?.message || 'Failed to update booking.');

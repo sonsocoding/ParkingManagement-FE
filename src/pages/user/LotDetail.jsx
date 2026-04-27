@@ -12,8 +12,8 @@ export default function LotDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { lot, loading: lotLoading } = useParkingLot(id);
-  const { slots, loading: slotsLoading } = useLotSlots(id);
+  const { parkingLot, loading: lotLoading } = useParkingLot(id);
+  const { parkingSlots, loading: slotsLoading } = useLotSlots(id);
   const { vehicles } = useMyVehicles();
 
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -32,7 +32,7 @@ export default function LotDetail() {
     );
   }
 
-  if (!lot) {
+  if (!parkingLot) {
     return (
       <>
         <TopBar title="Not Found" subtitle="" />
@@ -41,9 +41,9 @@ export default function LotDetail() {
     );
   }
 
-  const zones = normalizeZones(lot.zones).map((zone) => ({
+  const zones = normalizeZones(parkingLot.zones).map((zone) => ({
     ...zone,
-    slots: slots.filter(
+    slots: parkingSlots.filter(
       (slot) => getZoneKey(slot.zoneId) === zone.key
         && (vehicleTypeFilter === 'ALL' || slot.vehicleType === vehicleTypeFilter)
     )
@@ -56,10 +56,10 @@ export default function LotDetail() {
     }
   };
 
-  const selectedSlotObj = slots.find(s => s.id === selectedSlot);
+  const selectedSlotObj = parkingSlots.find(s => s.id === selectedSlot);
   const rate = selectedSlotObj?.vehicleType === 'MOTORBIKE'
-    ? parseFloat(lot.motorbikeHourlyRate)
-    : parseFloat(lot.carHourlyRate);
+    ? parseFloat(parkingLot.motorbikeHourlyRate)
+    : parseFloat(parkingLot.carHourlyRate);
   const estimatedCost = rate * duration;
 
   const handleConfirmBooking = async () => {
@@ -68,7 +68,7 @@ export default function LotDetail() {
     setBooking(true);
     setBookError(null);
     try {
-      const startTime = new Date();
+      const startTime = new Date(Date.now() + 60 * 1000);
       const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
       await bookingService.createBooking({
         parkingSlotId: selectedSlot,
@@ -92,10 +92,10 @@ export default function LotDetail() {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button className="btn-icon" onClick={() => navigate(-1)}><ArrowLeft size={20} /></button>
-            {lot.name}
+            {parkingLot.name}
           </div>
         }
-        subtitle={lot.address}
+        subtitle={parkingLot.address}
       />
       <div className="page-content lot-detail-content">
         <div className="lot-detail-main">
@@ -107,7 +107,7 @@ export default function LotDetail() {
               <div className="legend-item"><span className="slot-dot reserved" /> Reserved</div>
               <div className="legend-item"><span className="slot-dot maintenance" /> Maintenance</div>
             </div>
-            {lot.lotType === 'BOTH' && (
+            {parkingLot.lotType === 'BOTH' && (
               <div className="slot-filters">
                 {['ALL', 'CAR', 'MOTORBIKE'].map(type => (
                   <button
@@ -160,16 +160,16 @@ export default function LotDetail() {
             <h3 className="headline-sm" style={{ marginBottom: '16px' }}>Booking Summary</h3>
 
             <div className="lot-rates">
-              {parseFloat(lot.carHourlyRate) > 0 && (
+              {parseFloat(parkingLot.carHourlyRate) > 0 && (
                 <div className="rate-item">
                   <span className="rate-label"><Car size={16} /> Car Rate</span>
-                  <span className="rate-value">{formatCurrency(lot.carHourlyRate)}/hr</span>
+                  <span className="rate-value">{formatCurrency(parkingLot.carHourlyRate)}/hr</span>
                 </div>
               )}
-              {parseFloat(lot.motorbikeHourlyRate) > 0 && (
+              {parseFloat(parkingLot.motorbikeHourlyRate) > 0 && (
                 <div className="rate-item">
                   <span className="rate-label"><Bike size={16} /> Bike Rate</span>
-                  <span className="rate-value">{formatCurrency(lot.motorbikeHourlyRate)}/hr</span>
+                  <span className="rate-value">{formatCurrency(parkingLot.motorbikeHourlyRate)}/hr</span>
                 </div>
               )}
             </div>

@@ -20,9 +20,9 @@ export default function MyVehicles() {
     setFormError(null);
     try {
       const res = await vehicleService.addVehicle(form);
-      const newVehicle = res.data?.vehicle || res.data;
-      if (newVehicle) {
-        setVehicles(prev => ({ ...prev, vehicles: [...(prev?.vehicles || vehicles), newVehicle] }));
+      const vehicle = res.data?.vehicle;
+      if (vehicle) {
+        setVehicles((prev) => [...prev, vehicle]);
       }
       setShowModal(false);
       setForm({ vehicleType: 'CAR', plateNumber: '', color: '' });
@@ -37,7 +37,7 @@ export default function MyVehicles() {
     if (!window.confirm('Delete this vehicle?')) return;
     try {
       await vehicleService.deleteVehicle(vehicleId);
-      setVehicles(prev => ({ ...prev, vehicles: (prev?.vehicles || vehicles).filter(v => v.id !== vehicleId) }));
+      setVehicles((prev) => prev.filter((vehicle) => vehicle.id !== vehicleId));
     } catch (err) {
       alert(err?.message || 'Failed to delete vehicle.');
     }

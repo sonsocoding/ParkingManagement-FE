@@ -29,11 +29,11 @@ export default function StaffMonitoring() {
     return () => clearInterval(timer);
   }, []);
 
-  const slots = slotsData?.parkingSlots || [];
+  const parkingSlots = slotsData?.parkingSlots || [];
 
   const zones = currentLot?.zones
     ? normalizeZones(currentLot.zones)
-    : normalizeZones(slots.map((slot) => slot.zoneId));
+    : normalizeZones(parkingSlots.map((slot) => slot.zoneId));
 
   return (
     <>
@@ -95,7 +95,7 @@ export default function StaffMonitoring() {
               <div key={zone.key} className="monitoring-zone">
                 <h3 className="zone-title">Zone {zone.label}</h3>
                 <div className="monitoring-slot-grid">
-                  {slots.filter((slot) => getZoneKey(slot.zoneId) === zone.key).map((slot) => (
+                  {parkingSlots.filter((slot) => getZoneKey(slot.zoneId) === zone.key).map((slot) => (
                     <div
                       key={slot.id}
                       className={`monitoring-slot monitoring-${slot.status.toLowerCase()}`}
@@ -108,7 +108,7 @@ export default function StaffMonitoring() {
                 </div>
               </div>
             ))}
-            {!slotsLoading && slots.length === 0 && (
+            {!slotsLoading && parkingSlots.length === 0 && (
               <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '40px' }}>No slot data for this lot.</p>
             )}
           </div>

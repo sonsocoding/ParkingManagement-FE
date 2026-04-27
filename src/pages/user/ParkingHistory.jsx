@@ -5,7 +5,7 @@ import { formatDateTime, formatCurrency } from '../../utils/formatters';
 import '../../styles/pages/user/ParkingHistory.css';
 
 export default function ParkingHistory() {
-  const { records, loading, error } = useMyRecords();
+  const { parkingRecords, loading, error } = useMyRecords();
 
   return (
     <>
@@ -15,7 +15,7 @@ export default function ParkingHistory() {
         {error && <p style={{ color: 'var(--color-occupied)', textAlign: 'center' }}>Error: {error}</p>}
 
         <div className="history-timeline">
-          {records.map((r) => (
+          {parkingRecords.map((r) => (
             <div key={r.id} className="history-item card">
               <div className={`history-status-dot ${r.status === 'CHECKED_IN' ? 'active' : 'done'}`} />
               <div className="history-item-content">
@@ -52,7 +52,7 @@ export default function ParkingHistory() {
               </div>
             </div>
           ))}
-          {!loading && records.length === 0 && (
+          {!loading && parkingRecords.length === 0 && (
             <div className="empty-state">
               <Clock size={48} />
               <h3>No parking history</h3>

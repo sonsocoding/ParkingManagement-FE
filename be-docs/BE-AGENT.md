@@ -244,9 +244,9 @@ Always check `response.status` field (not HTTP status code alone) to determine s
 
 | Method | Route         | Role  | Body                                  |
 | ------ | ------------- | ----- | ------------------------------------- |
-| POST   | `/`           | USER  | `{ vehicleType, startDate, endDate }` |
+| POST   | `/`           | USER  | `{ vehicleType, months }`             |
 | GET    | `/me`         | USER  | Own passes                            |
-| PUT    | `/:id/renew`  | USER  | `{ endDate }`                         |
+| PUT    | `/:id/renew`  | USER  | `{ months }`                          |
 | DELETE | `/:id`        | USER  | Cancel own pass                       |
 | GET    | `/`           | ADMIN | All passes                            |
 | PUT    | `/price`      | ADMIN | `{ vehicleType, price }`              |

@@ -8,6 +8,17 @@ import {
   paymentService,
   passService,
 } from '../api/index';
+import {
+  normalizeBookingsPayload,
+  normalizeLotPayload,
+  normalizeLotsPayload,
+  normalizePassesPayload,
+  normalizePaymentsPayload,
+  normalizeRecordsPayload,
+  normalizeSlotsPayload,
+  normalizeUsersPayload,
+  normalizeVehiclesPayload,
+} from '../utils/apiNormalizers';
 
 // Generic data fetching hook
 export function useFetchData(apiCall, dependencies = []) {
@@ -45,7 +56,7 @@ export function useFetchData(apiCall, dependencies = []) {
 
 export function useParkingLots() {
   const { data, loading, error } = useFetchData(lotService.getAllLots, []);
-  return { parkingLots: data?.parkingLots || [], loading, error };
+  return { parkingLots: normalizeLotsPayload(data), loading, error };
 }
 
 export function useParkingLot(id) {
@@ -53,7 +64,7 @@ export function useParkingLot(id) {
     id ? () => lotService.getLotById(id) : null,
     [id]
   );
-  return { lot: data?.parkingLot || null, loading, error };
+  return { parkingLot: normalizeLotPayload(data), loading, error };
 }
 
 export function useLotSlots(lotId) {
@@ -61,7 +72,7 @@ export function useLotSlots(lotId) {
     lotId ? () => lotService.getSlotsByLotId(lotId) : null,
     [lotId]
   );
-  return { slots: data?.parkingSlots || [], loading, error };
+  return { parkingSlots: normalizeSlotsPayload(data), loading, error };
 }
 
 export function useMyVehicles() {
@@ -72,7 +83,7 @@ export function useMyVehicles() {
   useEffect(() => {
     let isMounted = true;
     vehicleService.getMyVehicles()
-      .then(res => { if (isMounted) setVehicles(res.data?.vehicles || []); })
+      .then((res) => { if (isMounted) setVehicles(normalizeVehiclesPayload(res.data)); })
       .catch(err => { if (isMounted) setError(err.message || 'Error'); })
       .finally(() => { if (isMounted) setLoading(false); });
     return () => { isMounted = false; };
@@ -83,50 +94,50 @@ export function useMyVehicles() {
 
 export function useMyBookings() {
   const { data, loading, error } = useFetchData(bookingService.getMyBookings, []);
-  return { bookings: data?.bookings || [], loading, error };
+  return { bookings: normalizeBookingsPayload(data), loading, error };
 }
 
 export function useMyPayments() {
   const { data, loading, error } = useFetchData(paymentService.getMyPayments, []);
-  return { payments: data?.payments || [], loading, error };
+  return { payments: normalizePaymentsPayload(data), loading, error };
 }
 
 export function useMyRecords() {
   const { data, loading, error } = useFetchData(recordService.getMyRecords, []);
-  return { records: data?.records || [], loading, error };
+  return { parkingRecords: normalizeRecordsPayload(data), loading, error };
 }
 
 export function useMyPasses() {
   const { data, loading, error } = useFetchData(passService.getMyPasses, []);
-  return { passes: data?.monthlyPasses || [], loading, error };
+  return { monthlyPasses: normalizePassesPayload(data), loading, error };
 }
 
 export function useAllUsers() {
   const { data, loading, error } = useFetchData(userService.getAllUsers, []);
-  return { users: data?.users || [], loading, error };
+  return { users: normalizeUsersPayload(data), loading, error };
 }
 
 export function useAllLots() {
   const { data, loading, error } = useFetchData(lotService.getAllLots, []);
-  return { lots: data?.parkingLots || [], loading, error };
+  return { lots: normalizeLotsPayload(data), loading, error };
 }
 
 export function useAllBookings() {
   const { data, loading, error } = useFetchData(bookingService.getAllBookings, []);
-  return { bookings: data?.bookings || [], loading, error };
+  return { bookings: normalizeBookingsPayload(data), loading, error };
 }
 
 export function useAllPayments() {
   const { data, loading, error } = useFetchData(paymentService.getAllPayments, []);
-  return { payments: data?.payments || [], loading, error };
+  return { payments: normalizePaymentsPayload(data), loading, error };
 }
 
 export function useAllRecords() {
   const { data, loading, error } = useFetchData(recordService.getAllRecords, []);
-  return { records: data?.records || [], loading, error };
+  return { parkingRecords: normalizeRecordsPayload(data), loading, error };
 }
 
 export function useAllPasses() {
   const { data, loading, error } = useFetchData(passService.getAllPasses, []);
-  return { passes: data?.monthlyPasses || [], loading, error };
+  return { monthlyPasses: normalizePassesPayload(data), loading, error };
 }

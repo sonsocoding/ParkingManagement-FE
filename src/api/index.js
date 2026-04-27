@@ -54,6 +54,7 @@ export const bookingService = {
   createBooking: (data) => axiosClient.post('/bookings', data),
   updateOwnBooking: (id, data) => axiosClient.put(`/bookings/${id}`, data),
   adminUpdateBooking: (id, data) => axiosClient.put(`/bookings/${id}/admin`, data),
+  adminUpdateBookingStatus: (id, status) => axiosClient.put(`/bookings/${id}/status`, { status }),
   cancelBooking: (id) => axiosClient.delete(`/bookings/${id}`),        // USER cancel own
   adminDeleteBooking: (id) => axiosClient.delete(`/bookings/${id}/admin`),
 };

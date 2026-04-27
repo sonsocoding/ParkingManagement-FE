@@ -7,7 +7,7 @@ import { formatCurrency, formatDate } from '../../utils/formatters';
 import '../../styles/pages/user/MonthlyPasses.css';
 
 export default function MonthlyPasses() {
-  const { passes, loading, error } = useMyPasses();
+  const { monthlyPasses, loading, error } = useMyPasses();
   const { vehicles } = useMyVehicles();
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ vehicleType: 'CAR', vehicleId: '', months: 1 });
@@ -23,7 +23,6 @@ export default function MonthlyPasses() {
     try {
       await passService.createPass({
         vehicleType: form.vehicleType,
-        vehicleId: form.vehicleId,
         months: parseInt(form.months),
       });
       setShowModal(false);
@@ -67,7 +66,7 @@ export default function MonthlyPasses() {
         {error && <p style={{ color: 'var(--color-occupied)', textAlign: 'center' }}>Error: {error}</p>}
 
         <div className="passes-grid">
-          {passes.map((pass) => (
+          {monthlyPasses.map((pass) => (
             <div key={pass.id} className={`pass-card card ${pass.status === 'ACTIVE' ? 'pass-active' : ''}`}>
               <div className="pass-card-header">
                 <div className="pass-card-icon"><Ticket size={24} /></div>
@@ -89,7 +88,7 @@ export default function MonthlyPasses() {
               )}
             </div>
           ))}
-          {!loading && passes.length === 0 && (
+          {!loading && monthlyPasses.length === 0 && (
             <div className="empty-state" style={{ gridColumn: '1/-1' }}>
               <Ticket size={48} />
               <h3>No monthly passes</h3>
@@ -116,7 +115,7 @@ export default function MonthlyPasses() {
               </div>
               <div className="form-group">
                 <label className="form-label">Vehicle</label>
-                <select className="form-select" name="vehicleId" value={form.vehicleId} onChange={handleChange} required>
+                <select className="form-select" name="vehicleId" value={form.vehicleId} onChange={handleChange}>
                   <option value="">Select vehicle...</option>
                   {vehicles
                     .filter(v => v.vehicleType === form.vehicleType)
@@ -125,6 +124,9 @@ export default function MonthlyPasses() {
                     ))
                   }
                 </select>
+                <p style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginTop: '6px' }}>
+                  Vehicle selection is optional here and only helps you confirm the pass type.
+                </p>
               </div>
               <div className="form-group">
                 <label className="form-label">Duration (Months)</label>

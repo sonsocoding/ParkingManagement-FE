@@ -19,6 +19,20 @@ export default function BrowseLots() {
     return matchSearch && matchType;
   });
 
+  const getLotMetrics = (lot) => {
+    const availableSlots = typeof lot.availableSlots === 'number' ? lot.availableSlots : null;
+    const occupiedSlots = typeof lot.occupiedSlots === 'number' ? lot.occupiedSlots : null;
+    const reservedSlots = typeof lot.reservedSlots === 'number' ? lot.reservedSlots : null;
+
+    return {
+      availableSlots,
+      occupiedSlots,
+      reservedSlots,
+      knownOccupancy: occupiedSlots !== null && reservedSlots !== null,
+      hasAvailabilityCounts: availableSlots !== null,
+    };
+  };
+
   return (
     <>
       <TopBar title="Browse Parking Lots" subtitle="Find and book your perfect parking spot" />
@@ -54,10 +68,11 @@ export default function BrowseLots() {
         {/* Lots Grid */}
         <div className="lots-grid">
           {filtered.map((lot) => {
-            const occupied = (lot.occupiedSlots || 0) + (lot.reservedSlots || 0);
+            const metrics = getLotMetrics(lot);
+            const occupied = (metrics.occupiedSlots || 0) + (metrics.reservedSlots || 0);
             const total = lot.totalSlots || 1;
-            const occupancy = Math.round((occupied / total) * 100);
-            const isLow = (lot.availableSlots || 0) < 10;
+            const occupancy = metrics.knownOccupancy ? Math.round((occupied / total) * 100) : null;
+            const isLow = metrics.hasAvailabilityCounts && metrics.availableSlots < 10;
             return (
               <div
                 key={lot.id}
@@ -90,21 +105,21 @@ export default function BrowseLots() {
                   <div className="lot-card-stats">
                     <div className="lot-card-stat">
                       <span className="lot-card-stat-dot available" />
-                      <span>{lot.availableSlots ?? '—'} free</span>
+                      <span>{metrics.availableSlots ?? '—'} free</span>
                     </div>
                     <div className="lot-card-stat">
                       <span className="lot-card-stat-dot occupied" />
-                      <span>{lot.occupiedSlots ?? '—'} taken</span>
+                      <span>{metrics.occupiedSlots ?? '—'} taken</span>
                     </div>
                     <div className="lot-card-stat">
                       <span className="lot-card-stat-dot reserved" />
-                      <span>{lot.reservedSlots ?? '—'} reserved</span>
+                      <span>{metrics.reservedSlots ?? '—'} reserved</span>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
                   <div className="lot-card-bar">
-                    <div className="lot-card-bar-fill" style={{ width: `${occupancy}%` }} />
+                    <div className="lot-card-bar-fill" style={{ width: `${occupancy ?? 0}%` }} />
                   </div>
 
                   {/* Pricing */}
