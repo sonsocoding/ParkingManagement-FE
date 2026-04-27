@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../api/index';
+import { setAuthToken } from '../api/axiosClient';
 
 const AuthContext = createContext(null);
 
@@ -11,15 +12,25 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const fetchMe = async () => {
       try {
+        // Cookie-based auth: browser automatically sends httpOnly cookie
+        // Bearer token in localStorage is optional fallback
+        const token = localStorage.getItem('token');
+        if (token) {
+          setAuthToken(token);
+        }
+
         const res = await authService.getMe();
         if (res.data) {
-          setUser(res.data);
+          // Backend returns { status: "success", data: { user: {...} } }
+          setUser(res.data.user || res.data);
           setIsAuthenticated(true);
         }
       } catch (err) {
         // Not authenticated
         setIsAuthenticated(false);
         setUser(null);
+        setAuthToken(null);
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }
@@ -34,10 +45,20 @@ export function AuthProvider({ children }) {
       if (res.data && res.data.user) {
         setUser(res.data.user);
         setIsAuthenticated(true);
+        // Set token if provided in response
+        if (res.data.token) {
+          setAuthToken(res.data.token);
+          localStorage.setItem('token', res.data.token);
+        }
         return { success: true };
       } else if (res.data && res.data.id) { // Some BE structures return user directly
         setUser(res.data);
         setIsAuthenticated(true);
+        // Set token if provided in response
+        if (res.data.token) {
+          setAuthToken(res.data.token);
+          localStorage.setItem('token', res.data.token);
+        }
         return { success: true };
       }
     } catch (err) {
@@ -54,10 +75,10 @@ export function AuthProvider({ children }) {
     } finally {
       setIsAuthenticated(false);
       setUser(null);
+      setAuthToken(null);
+      localStorage.removeItem('token');
     }
   };
-
-
 
   if (loading) {
     return <div>Loading...</div>;

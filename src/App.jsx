@@ -36,7 +36,7 @@ export default function App() {
       {/* Protected Routes */}
       <Route path="/" element={isAuthenticated ? <AppLayout /> : <Navigate to="/login" />}>
         {/* Redirect root based on role */}
-        <Route index element={<Navigate to={user?.role === 'USER' ? '/dashboard' : '/admin/dashboard'} />} />
+        <Route index element={<Navigate to={user?.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard'} />} />
         
         {/* User Routes */}
         <Route path="dashboard" element={<UserDashboard />} />
