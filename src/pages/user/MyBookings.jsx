@@ -12,6 +12,10 @@ export default function MyBookings() {
   const [actionLoading, setActionLoading] = useState(null);
 
   const filtered = statusFilter === 'ALL' ? bookings : bookings.filter(b => b.status === statusFilter);
+  const formatStatusLabel = (status) => {
+    if (status === 'PENDING_PAYMENT') return 'Pending Payment';
+    return status.charAt(0) + status.slice(1).toLowerCase();
+  };
 
   const handleCancel = async (bookingId) => {
     if (!window.confirm('Cancel this booking?')) return;
@@ -49,9 +53,9 @@ export default function MyBookings() {
       <TopBar title="My Bookings" subtitle="View and manage your parking reservations" />
       <div className="page-content">
         <div className="bookings-filters">
-          {['ALL', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map(s => (
+          {['ALL', 'PENDING_PAYMENT', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map(s => (
             <button key={s} className={`btn ${statusFilter === s ? 'btn-primary btn-sm' : 'btn-secondary btn-sm'}`} onClick={() => setStatusFilter(s)}>
-              {s === 'ALL' ? 'All' : s.charAt(0) + s.slice(1).toLowerCase()}
+              {s === 'ALL' ? 'All' : formatStatusLabel(s)}
             </button>
           ))}
         </div>
@@ -65,7 +69,7 @@ export default function MyBookings() {
               <div className="booking-card-top">
                 <div className="booking-card-lot">
                   <h3>{b.parkingLot?.name || 'Unknown Lot'}</h3>
-                  <span className={`badge badge-${b.status.toLowerCase()}`}>{b.status}</span>
+                  <span className={`badge badge-${b.status.toLowerCase()}`}>{formatStatusLabel(b.status)}</span>
                 </div>
                 <div className="booking-card-cost">
                   <span className="booking-cost-label">Est. Cost</span>
@@ -89,6 +93,22 @@ export default function MyBookings() {
                 </div>
               </div>
 
+              {b.status === 'PENDING_PAYMENT' && (
+                <div className="booking-card-actions">
+                  <div style={{ fontSize: '13px', color: 'var(--text-secondary)', flex: 1 }}>
+                    Waiting for VNPay confirmation before check-in.
+                  </div>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ color: 'var(--color-occupied)' }}
+                    onClick={() => handleCancel(b.id)}
+                    disabled={actionLoading === b.id}
+                  >
+                    <X size={14} /> Cancel
+                  </button>
+                </div>
+              )}
+
               {b.status === 'CONFIRMED' && (
                 <div className="booking-card-actions">
                   <button
@@ -106,6 +126,14 @@ export default function MyBookings() {
                   >
                     <X size={14} /> Cancel
                   </button>
+                </div>
+              )}
+
+              {b.status === 'COMPLETED' && (
+                <div className="booking-card-actions">
+                  <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                    Parking session finished. Any cash payment appears in My Payments after checkout.
+                  </div>
                 </div>
               )}
             </div>

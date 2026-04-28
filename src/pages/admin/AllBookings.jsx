@@ -5,7 +5,12 @@ import { bookingService } from '../../api/index';
 import { formatDateTime, formatCurrency } from '../../utils/formatters';
 import { Search, Filter, ShieldAlert } from 'lucide-react';
 
-const STATUSES = ['PENDING_PAYMENT', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+const ALLOWED_TRANSITIONS = {
+  PENDING_PAYMENT: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['COMPLETED', 'CANCELLED'],
+  COMPLETED: [],
+  CANCELLED: [],
+};
 
 export default function AllBookings() {
   const { bookings, loading, error } = useAllBookings();
@@ -17,8 +22,7 @@ export default function AllBookings() {
     (b.vehicle?.plateNumber || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleStatusChange = async (bookingId, currentStatus) => {
-    const next = STATUSES[(STATUSES.indexOf(currentStatus) + 1) % STATUSES.length];
+  const handleStatusChange = async (bookingId, next) => {
     if (!window.confirm(`Change status to ${next}?`)) return;
     setUpdatingId(bookingId);
     try {
@@ -30,6 +34,8 @@ export default function AllBookings() {
       setUpdatingId(null);
     }
   };
+
+  const formatStatusLabel = (status) => status === 'PENDING_PAYMENT' ? 'Pending Payment' : status;
 
   return (
     <>
@@ -84,16 +90,24 @@ export default function AllBookings() {
                       <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>to {formatDateTime(b.endTime)}</div>
                     </td>
                     <td style={{ fontWeight: 600 }}>{formatCurrency(b.estimatedCost)}</td>
-                    <td><span className={`badge badge-${b.status.toLowerCase()}`}>{b.status}</span></td>
+                    <td><span className={`badge badge-${b.status.toLowerCase()}`}>{formatStatusLabel(b.status)}</span></td>
                     <td style={{ textAlign: 'right' }}>
-                      <button
-                        className="btn-icon"
-                        title="Cycle Status"
-                        disabled={updatingId === b.id}
-                        onClick={() => handleStatusChange(b.id, b.status)}
-                      >
-                        <ShieldAlert size={16} />
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        {ALLOWED_TRANSITIONS[b.status].length === 0 && (
+                          <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>No actions</span>
+                        )}
+                        {ALLOWED_TRANSITIONS[b.status].map((nextStatus) => (
+                          <button
+                            key={nextStatus}
+                            className="btn-icon"
+                            title={`Set ${nextStatus}`}
+                            disabled={updatingId === b.id}
+                            onClick={() => handleStatusChange(b.id, nextStatus)}
+                          >
+                            <ShieldAlert size={16} />
+                          </button>
+                        ))}
+                      </div>
                     </td>
                   </tr>
                 ))}

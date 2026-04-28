@@ -7,6 +7,12 @@ import { Search, Filter } from 'lucide-react';
 export default function AllPayments() {
   const { payments, loading, error } = useAllPayments();
   const [searchTerm, setSearchTerm] = useState('');
+  const getPaymentType = (payment) => {
+    if (payment.bookingId) return 'Booking';
+    if (payment.parkingRecordId) return 'Walk-in';
+    if (payment.monthlyPassId) return 'Monthly Pass';
+    return 'Other';
+  };
 
   const filteredPayments = payments.filter(p =>
     (p.user?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -55,7 +61,7 @@ export default function AllPayments() {
                     <td style={{ fontWeight: 500 }}>{p.user?.fullName || '—'}</td>
                     <td style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{formatCurrency(p.amount)}</td>
                     <td><span className="badge badge-completed">{p.method}</span></td>
-                    <td>{p.bookingId ? 'Booking' : p.monthlyPassId ? 'Monthly Pass' : 'Other'}</td>
+                    <td>{getPaymentType(p)}</td>
                     <td><span className={`badge badge-${p.status.toLowerCase()}`}>{p.status}</span></td>
                     <td style={{ fontSize: '13px' }}>{formatDateTime(p.createdAt)}</td>
                   </tr>

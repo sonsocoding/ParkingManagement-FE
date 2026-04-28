@@ -20,6 +20,7 @@ export default function LotDetail() {
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState('ALL');
   const [duration, setDuration] = useState(1);
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [booking, setBooking] = useState(false);
   const [bookError, setBookError] = useState(null);
 
@@ -76,8 +77,11 @@ export default function LotDetail() {
         vehicleId: selectedVehicleId,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
-        paymentMethod: 'CASH',
+        paymentMethod,
       });
+      if (paymentMethod === 'VNPAY') {
+        alert('Booking created with pending VNPay payment. It will stay pending until payment confirmation is received.');
+      }
       navigate('/my-bookings');
     } catch (err) {
       setBookError(err?.message || 'Booking failed. Please try again.');
@@ -207,6 +211,14 @@ export default function LotDetail() {
                   )}
                 </div>
 
+                <div className="form-group">
+                  <label className="form-label">Payment Method</label>
+                  <select className="form-select" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+                    <option value="CASH">Cash on exit</option>
+                    <option value="VNPAY">VNPay</option>
+                  </select>
+                </div>
+
                 <div className="booking-total">
                   <span>Estimated Total</span>
                   <span className="total-amount">{formatCurrency(estimatedCost)}</span>
@@ -219,7 +231,7 @@ export default function LotDetail() {
                   onClick={handleConfirmBooking}
                   disabled={booking}
                 >
-                  {booking ? 'Booking...' : 'Confirm Booking'}
+                  {booking ? 'Booking...' : paymentMethod === 'VNPAY' ? 'Create VNPay Booking' : 'Confirm Cash Booking'}
                 </button>
               </div>
             ) : (
@@ -232,7 +244,11 @@ export default function LotDetail() {
 
             <div className="booking-notice">
               <Info size={14} />
-              <span>Payments are collected in cash upon arrival.</span>
+              <span>
+                {paymentMethod === 'VNPAY'
+                  ? 'VNPay bookings are created as pending until the payment gateway confirms them.'
+                  : 'Cash bookings are reserved now and paid when you check out.'}
+              </span>
             </div>
           </div>
         </div>

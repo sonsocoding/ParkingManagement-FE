@@ -1,11 +1,27 @@
+import { useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { Clock, Car, MapPin, ArrowRight } from 'lucide-react';
+import { recordService } from '../../api/index';
 import { useMyRecords } from '../../hooks/useApi';
 import { formatDateTime, formatCurrency } from '../../utils/formatters';
 import '../../styles/pages/user/ParkingHistory.css';
 
 export default function ParkingHistory() {
   const { parkingRecords, loading, error } = useMyRecords();
+  const [actionLoading, setActionLoading] = useState(null);
+
+  const handleCheckOut = async (recordId) => {
+    setActionLoading(recordId);
+    try {
+      await recordService.checkOut(recordId);
+      alert('Checked out successfully. Payment has been settled according to your parking method.');
+      window.location.reload();
+    } catch (err) {
+      alert(err?.message || 'Check-out failed.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   return (
     <>
@@ -47,6 +63,20 @@ export default function ParkingHistory() {
                 {r.actualCost && (
                   <div className="history-cost">
                     Cost: <strong>{formatCurrency(r.actualCost)}</strong>
+                  </div>
+                )}
+                <div style={{ marginTop: '10px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  Payment Status: <span className={`badge badge-${r.paymentStatus.toLowerCase()}`}>{r.paymentStatus}</span>
+                </div>
+                {r.status === 'CHECKED_IN' && (
+                  <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => handleCheckOut(r.id)}
+                      disabled={actionLoading === r.id}
+                    >
+                      {actionLoading === r.id ? 'Checking out...' : 'Check Out & Settle'}
+                    </button>
                   </div>
                 )}
               </div>

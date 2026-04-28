@@ -58,7 +58,6 @@ export default function AdminDashboard() {
           <StatCard icon={TrendingUp} label="Today's Revenue" value={formatCurrency(revenueByDay.at(-1)?.amount || 0)} color="green" trend={12.5} />
           <StatCard icon={CalendarCheck} label="Active Check-ins" value={activeRecords.length} color="blue" subtitle="Right now" />
           <StatCard icon={Users} label="Available Slots" value={availableSlots} color="primary" />
-          <StatCard icon={MapPin} label="Parking Lots" value={lots.length} color="orange" />
         </div>
 
         <div className="dashboard-grid">

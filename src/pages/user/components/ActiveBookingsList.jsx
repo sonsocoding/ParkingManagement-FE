@@ -4,6 +4,7 @@ import { formatCurrency, formatDateTime } from '../../../utils/formatters';
 
 export default function ActiveBookingsList({ bookings }) {
   const navigate = useNavigate();
+  const formatStatusLabel = (status) => (status === 'PENDING_PAYMENT' ? 'Pending Payment' : status);
   
   return (
     <div className="card">
@@ -33,7 +34,7 @@ export default function ActiveBookingsList({ bookings }) {
                 </div>
               </div>
               <div className="user-booking-right">
-                <span className={`badge badge-${booking.status.toLowerCase()}`}>{booking.status}</span>
+                <span className={`badge badge-${booking.status.toLowerCase()}`}>{formatStatusLabel(booking.status)}</span>
                 <span className="user-booking-cost">{formatCurrency(booking.estimatedCost)}</span>
               </div>
             </div>

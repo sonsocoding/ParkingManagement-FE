@@ -28,7 +28,7 @@ export function useUserDashboard() {
         if (!isMounted) return;
 
         const myBookings = normalizeBookingsPayload(bookingsRes.data);
-        setActiveBookings(myBookings.filter(b => b.status === 'CONFIRMED'));
+        setActiveBookings(myBookings.filter((b) => ['PENDING_PAYMENT', 'CONFIRMED'].includes(b.status)));
         
         const parkingRecords = normalizeRecordsPayload(recordsRes.data);
         setActiveRecords(parkingRecords.filter((parkingRecord) => parkingRecord.status === 'CHECKED_IN'));
