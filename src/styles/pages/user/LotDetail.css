@@ -1,7 +1,7 @@
 .lot-detail-content {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 24px;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
 }
 
 .slot-map-header {
@@ -142,28 +142,29 @@
 .sticky-booking-card {
   position: sticky;
   top: 88px;
+  padding: 20px;
 }
 
 .lot-rates {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-bottom: 16px;
+  gap: 6px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border-light);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .rate-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .rate-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   color: var(--text-secondary);
 }
 
@@ -175,47 +176,65 @@
 .booking-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .selected-slot-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
+  padding: 10px 12px;
   background: var(--color-primary-bg);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-primary-lighter);
 }
 
 .selected-slot-label {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--color-primary);
   font-weight: 500;
 }
 
 .selected-slot-val {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-primary);
+}
+
+.sticky-booking-card .headline-sm {
+  font-size: 17px;
+}
+
+.sticky-booking-card .form-group {
+  gap: 5px;
+}
+
+.sticky-booking-card .form-label {
+  font-size: 12px;
+}
+
+.sticky-booking-card .form-select {
+  padding: 9px 12px;
+  font-size: 13px;
+  background-position: right 10px center;
 }
 
 .booking-total {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 14px 0 0;
   border-top: 1px solid var(--border-light);
-  margin-top: 8px;
-  font-size: 15px;
+  margin-top: 4px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .total-amount {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 700;
   color: var(--color-primary);
 }
@@ -223,13 +242,18 @@
 .booking-notice {
   display: flex;
   gap: 8px;
-  margin-top: 16px;
-  padding: 12px;
+  margin-top: 14px;
+  padding: 10px 12px;
   background: var(--surface-page);
   border-radius: var(--radius-md);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-secondary);
   line-height: 1.4;
+}
+
+.sticky-booking-card .btn-lg {
+  padding: 12px 18px;
+  font-size: 14px;
 }
 
 @media (max-width: 900px) {
