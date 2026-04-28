@@ -5,7 +5,7 @@ import { MapPin, Car, Bike, Info, ArrowLeft, Wrench } from 'lucide-react';
 import { useParkingLot, useLotSlots, useMyVehicles } from '../../hooks/useApi';
 import { formatCurrency } from '../../utils/formatters';
 import { bookingService } from '../../api/index';
-import { getZoneKey, normalizeZones } from '../../utils/parkingZones';
+import { getZoneKey, normalizeZones, sortParkingSlotsByNumber } from '../../utils/parkingZones';
 import '../../styles/pages/user/LotDetail.css';
 
 export default function LotDetail() {
@@ -44,9 +44,11 @@ export default function LotDetail() {
 
   const zones = normalizeZones(parkingLot.zones).map((zone) => ({
     ...zone,
-    slots: parkingSlots.filter(
-      (slot) => getZoneKey(slot.zoneId) === zone.key
-        && (vehicleTypeFilter === 'ALL' || slot.vehicleType === vehicleTypeFilter)
+    slots: sortParkingSlotsByNumber(
+      parkingSlots.filter(
+        (slot) => getZoneKey(slot.zoneId) === zone.key
+          && (vehicleTypeFilter === 'ALL' || slot.vehicleType === vehicleTypeFilter)
+      )
     )
   }));
 

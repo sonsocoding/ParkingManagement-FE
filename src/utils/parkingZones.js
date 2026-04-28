@@ -42,3 +42,21 @@ export function normalizeZones(zones) {
       return true;
     });
 }
+
+const slotNumberCollator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: 'base',
+});
+
+export function sortParkingSlotsByNumber(slots) {
+  return [...slots].sort((left, right) => {
+    const slotNumberComparison = slotNumberCollator.compare(
+      String(left?.slotNumber ?? ''),
+      String(right?.slotNumber ?? '')
+    );
+
+    if (slotNumberComparison !== 0) return slotNumberComparison;
+
+    return String(left?.id ?? '').localeCompare(String(right?.id ?? ''));
+  });
+}

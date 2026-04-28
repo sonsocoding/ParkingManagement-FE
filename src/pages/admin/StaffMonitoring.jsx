@@ -5,7 +5,7 @@ import { useFetchData } from '../../hooks/useApi';
 import { lotService, slotService } from '../../api/index';
 import { Monitor, Wrench } from 'lucide-react';
 import '../../styles/pages/admin/StaffMonitoring.css';
-import { getZoneKey, normalizeZones } from '../../utils/parkingZones';
+import { getZoneKey, normalizeZones, sortParkingSlotsByNumber } from '../../utils/parkingZones';
 
 export default function StaffMonitoring() {
   const { lots, loading: lotsLoading } = useAllLots();
@@ -30,6 +30,7 @@ export default function StaffMonitoring() {
   }, []);
 
   const parkingSlots = slotsData?.parkingSlots || [];
+  const sortedParkingSlots = sortParkingSlotsByNumber(parkingSlots);
 
   const zones = currentLot?.zones
     ? normalizeZones(currentLot.zones)
@@ -95,7 +96,7 @@ export default function StaffMonitoring() {
               <div key={zone.key} className="monitoring-zone">
                 <h3 className="zone-title">Zone {zone.label}</h3>
                 <div className="monitoring-slot-grid">
-                  {parkingSlots.filter((slot) => getZoneKey(slot.zoneId) === zone.key).map((slot) => (
+                  {sortedParkingSlots.filter((slot) => getZoneKey(slot.zoneId) === zone.key).map((slot) => (
                     <div
                       key={slot.id}
                       className={`monitoring-slot monitoring-${slot.status.toLowerCase()}`}
