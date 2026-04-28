@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
-import { CalendarCheck, Clock, Car, ParkingSquare, X } from 'lucide-react';
+import { CalendarCheck, Clock, Car, Bike, ParkingSquare, X } from 'lucide-react';
 import { useMyBookings } from '../../hooks/useApi';
 import { bookingService, recordService } from '../../api/index';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
@@ -16,6 +16,9 @@ export default function MyBookings() {
     if (status === 'PENDING_PAYMENT') return 'Pending Payment';
     return status.charAt(0) + status.slice(1).toLowerCase();
   };
+
+  const VehicleIcon = ({ vehicleType }) =>
+    vehicleType === 'MOTORBIKE' ? <Bike size={16} /> : <Car size={16} />;
 
   const handleCancel = async (bookingId) => {
     if (!window.confirm('Cancel this booking?')) return;
@@ -77,9 +80,9 @@ export default function MyBookings() {
                 </div>
               </div>
 
-              <div className="booking-card-details">
+                <div className="booking-card-details">
                 <div className="booking-detail">
-                  <Car size={16} />
+                  <VehicleIcon vehicleType={b.vehicle?.vehicleType} />
                   <span>{b.vehicle?.plateNumber}</span>
                   <span className={`badge badge-${b.vehicle?.vehicleType?.toLowerCase()}`}>{b.vehicle?.vehicleType}</span>
                 </div>

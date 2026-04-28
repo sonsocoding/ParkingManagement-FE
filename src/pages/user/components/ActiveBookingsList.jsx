@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { Car, CalendarCheck, Clock, ParkingSquare } from 'lucide-react';
+import { Car, Bike, CalendarCheck, Clock, ParkingSquare } from 'lucide-react';
 import { formatCurrency, formatDateTime } from '../../../utils/formatters';
 
 export default function ActiveBookingsList({ bookings }) {
   const navigate = useNavigate();
   const formatStatusLabel = (status) => (status === 'PENDING_PAYMENT' ? 'Pending Payment' : status);
+  const VehicleIcon = ({ vehicleType }) =>
+    vehicleType === 'MOTORBIKE' ? <Bike size={14} /> : <Car size={14} />;
   
   return (
     <div className="card">
@@ -25,7 +27,7 @@ export default function ActiveBookingsList({ bookings }) {
               <div className="user-booking-left">
                 <div className="user-booking-lot">{booking.parkingLot?.name || 'Unknown Lot'}</div>
                 <div className="user-booking-meta">
-                  <span><Car size={14} /> {booking.vehicle?.plateNumber}</span>
+                  <span><VehicleIcon vehicleType={booking.vehicle?.vehicleType} /> {booking.vehicle?.plateNumber}</span>
                   <span><ParkingSquare size={14} /> Slot {booking.slot?.slotNumber || booking.parkingSlotId}</span>
                 </div>
                 <div className="user-booking-time">
