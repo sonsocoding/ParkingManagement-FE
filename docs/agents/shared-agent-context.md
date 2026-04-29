@@ -111,3 +111,5 @@ Error:
 - If one side changes route shape, required fields, statuses, or auth behavior, update this file.
 - If one side adds a dependency on a new field, update this file.
 - If VNPay redirect or verification behavior changes, both sides should review the change.
+- Feature work should update the relevant docs in the same task, not as a later cleanup.
+- Shared-contract changes must be mirrored in both frontend and backend shared agent context files.

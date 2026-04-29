@@ -76,6 +76,22 @@ Read:
 - Use shared variables from `src/index.css`.
 - Handle loading, empty, and error states.
 
+## Documentation Update Rule
+
+When making a feature change, update the relevant agent docs in the same task if the change affects:
+
+- API routes, payloads, or response shape
+- auth, permissions, or role behavior
+- status enums or business flows
+- folder structure or important file locations
+- frontend/backend integration expectations
+
+Update only what changed:
+
+- frontend-only change: update frontend docs
+- backend-only dependency change: update backend docs if the frontend doc points to it
+- shared contract change: update the shared agent context in both folders
+
 ## What Backend Expects
 
 The backend contract assumes frontend will:
