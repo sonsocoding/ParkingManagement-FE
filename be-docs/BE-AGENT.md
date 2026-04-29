@@ -160,21 +160,26 @@ Always check `response.status` field (not HTTP status code alone) to determine s
 }
 ```
 
-> `VNPAY` is currently disabled. Use `CASH` only.
-
 **Booking status enum:** `PENDING_PAYMENT` → `CONFIRMED` → `COMPLETED` | `CANCELLED`
 
 **What happens on `POST /bookings` (CASH):**
 
 1. Slot status → `RESERVED`
 2. Booking created with status `CONFIRMED`
-3. Payment record created with status `PENDING`, linked to booking
+3. No payment is created yet
 
 **What happens on `DELETE /bookings/:id` (cancel):**
 
 1. Booking → `CANCELLED`
 2. Slot → `AVAILABLE`
-3. Payment → `FAILED`
+3. If a linked pending VNPAY payment exists, it becomes `FAILED`
+
+**What happens on `POST /bookings` (VNPAY):**
+
+1. Slot status → `RESERVED`
+2. Booking created with status `PENDING_PAYMENT`
+3. Payment record created with status `PENDING`, linked to booking
+4. IPN success later moves booking → `CONFIRMED`; failure/expiry moves booking → `CANCELLED`
 
 ---
 
@@ -216,7 +221,10 @@ Always check `response.status` field (not HTTP status code alone) to determine s
 
 - Actual cost calculated from real time delta × hourly rate
 - Slot → `AVAILABLE`
-- Payment → `SUCCESS`
+- Walk-in: create one `CASH` payment linked to `parkingRecordId`
+- Cash booking: create one `CASH` payment linked to `bookingId`
+- VNPAY booking: reuse existing booking payment and mark/update it as `SUCCESS`
+- Booking-backed sessions are marked `COMPLETED` at checkout, not check-in
 
 ---
 
@@ -236,7 +244,12 @@ Always check `response.status` field (not HTTP status code alone) to determine s
 
 **Payment method enum:** `CASH` | `VNPAY`
 
-> Payments are **auto-created** when a booking is made or a monthly pass is purchased. Admin can create manual entries for cash reconciliation.
+> Payments are auto-created only when money should exist in the system:
+>
+> - VNPAY bookings: create `PENDING` at booking time
+> - Walk-ins / cash bookings: create `SUCCESS` only at checkout
+> - Monthly passes: created during purchase/renewal
+>   Admin can still create manual entries for reconciliation.
 
 ---
 
@@ -244,9 +257,9 @@ Always check `response.status` field (not HTTP status code alone) to determine s
 
 | Method | Route         | Role  | Body                                  |
 | ------ | ------------- | ----- | ------------------------------------- |
-| POST   | `/`           | USER  | `{ vehicleType, months }`             |
+| POST   | `/`           | USER  | `{ vehicleType, startDate, endDate }` |
 | GET    | `/me`         | USER  | Own passes                            |
-| PUT    | `/:id/renew`  | USER  | `{ months }`                          |
+| PUT    | `/:id/renew`  | USER  | `{ endDate }`                         |
 | DELETE | `/:id`        | USER  | Cancel own pass                       |
 | GET    | `/`           | ADMIN | All passes                            |
 | PUT    | `/price`      | ADMIN | `{ vehicleType, price }`              |
@@ -274,7 +287,14 @@ Always check `response.status` field (not HTTP status code alone) to determine s
 
 ```ts
 {
-  (id, name, address, totalSlots, lotType, carHourlyRate, motorbikeHourlyRate, zones);
+  (id,
+    name,
+    address,
+    totalSlots,
+    lotType,
+    carHourlyRate,
+    motorbikeHourlyRate,
+    zones);
 }
 ```
 
@@ -395,6 +415,6 @@ if (res.data.status === "error") {
 2. **Monetary values** are `Decimal(10,2)` from Prisma — they come as strings in JSON (e.g. `"25.50"`). Parse with `parseFloat()` for display.
 3. **Dates** are ISO 8601 strings. Always send times in UTC (`toISOString()`).
 4. **The slot `:id` in `GET /parking-slots/:id` is the parking LOT id**, not a slot id. It returns all slots for that lot.
-5. **Do not create new payments manually** — they are auto-created by the backend on booking/pass purchase. The `POST /payments` is for admin cash reconciliation only.
-6. **VNPay is disabled** — do not build VNPay UI flows. Only `CASH` is active.
-7. **Monthly pass check-in** — when a user with an active monthly pass checks in, they pass `monthlyPassId` to associate the parking record with the pass.
+5. **Do not assume every booking has a payment row** — cash bookings intentionally have no payment until checkout.
+6. **VNPay is active for bookings** — pending bookings can later become `CONFIRMED` or `CANCELLED`.
+7. **Monthly pass check-in** — the backend auto-applies an active compatible monthly pass; clients do not send `monthlyPassId` in check-in payloads.

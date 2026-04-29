@@ -52,6 +52,14 @@ Booking created → VNPay payment initiated → IPN webhook (public endpoint) re
 → hash verified → booking CONFIRMED / CANCELLED atomically
 ```
 
+**Frontend Return Flow**
+
+```
+VNPay returns browser to frontend /payments/vnpay-return
+→ frontend calls backend GET /api/payments/vnpay-return with query params
+→ backend verifies checksum and returns payment summary JSON
+```
+
 ## Getting Started
 
 ```bash

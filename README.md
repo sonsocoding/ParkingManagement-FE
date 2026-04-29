@@ -1,16 +1,43 @@
-# React + Vite
+# Smart Parking OS Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for the parking management system.
 
-Currently, two official plugins are available:
+## Current State
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- The app is already connected to the backend through `axios`
+- User flows for bookings, monthly passes, payments, and admin pages use real API calls
+- VNPay sandbox is supported for:
+  - booking creation
+  - monthly pass purchase
+  - monthly pass renewal
 
-## React Compiler
+## VNPay Frontend Flow
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. The frontend submits a booking or monthly pass request with `"paymentMethod": "VNPAY"`
+2. The backend responds with a `paymentUrl`
+3. The frontend redirects the browser to VNPay sandbox
+4. VNPay returns the user to `/payments/vnpay-return`
+5. The frontend verifies that return payload through the backend public endpoint `GET /api/payments/vnpay-return`
+6. The user sees the payment result page and can navigate back to payments, bookings, or passes
 
-## Expanding the ESLint configuration
+## Environment
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Create your local `.env` with:
+
+```bash
+VITE_API_URL=http://localhost:3000/api
+```
+
+The backend should use a VNPay return URL that points back to this frontend page:
+
+```bash
+VNPAY_RETURN_URL=http://localhost:5173/payments/vnpay-return
+```
+
+## Scripts
+
+```bash
+npm install
+npm run dev
+npm run build
+```

@@ -99,7 +99,7 @@ export default function MyBookings() {
               {b.status === 'PENDING_PAYMENT' && (
                 <div className="booking-card-actions">
                   <div style={{ fontSize: '13px', color: 'var(--text-secondary)', flex: 1 }}>
-                    Waiting for VNPay confirmation before check-in.
+                    Waiting for VNPay confirmation before check-in. If you closed the VNPay tab before paying, cancel this booking and create a new one to generate a fresh payment link.
                   </div>
                   <button
                     className="btn btn-ghost btn-sm"

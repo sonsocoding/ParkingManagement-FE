@@ -72,6 +72,7 @@ export const paymentService = {
   getPaymentById: (id) => axiosClient.get(`/payments/${id}`),
   getPaymentsByUserId: (userId) => axiosClient.get(`/payments/user/${userId}`),
   createPayment: (data) => axiosClient.post('/payments', data),
+  verifyVnpayReturn: (queryString) => axiosClient.get(`/payments/vnpay-return?${queryString}`),
 };
 
 export const passService = {

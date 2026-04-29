@@ -15,6 +15,7 @@ import MyVehicles from './pages/user/MyVehicles';
 import ParkingHistory from './pages/user/ParkingHistory';
 import MyPayments from './pages/user/MyPayments';
 import MonthlyPasses from './pages/user/MonthlyPasses';
+import VnpayReturnPage from './pages/user/VnpayReturnPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -32,6 +33,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/payments/vnpay-return" element={<VnpayReturnPage />} />
       
       {/* Protected Routes */}
       <Route path="/" element={isAuthenticated ? <AppLayout /> : <Navigate to="/login" />}>

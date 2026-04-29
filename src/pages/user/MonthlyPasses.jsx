@@ -16,17 +16,25 @@ export default function MonthlyPasses() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  const redirectToVnpay = (paymentUrl) => {
+    if (!paymentUrl) {
+      throw new Error('VNPay link was not returned by the server.');
+    }
+    window.location.assign(paymentUrl);
+  };
+
   const handleBuy = async (e) => {
     e.preventDefault();
     setSaving(true);
     setFormError(null);
     try {
-      await passService.createPass({
+      const res = await passService.createPass({
         vehicleType: form.vehicleType,
         months: parseInt(form.months),
+        paymentMethod: 'VNPAY',
       });
-      setShowModal(false);
-      window.location.reload();
+      redirectToVnpay(res?.data?.paymentUrl);
+      return;
     } catch (err) {
       setFormError(err?.message || 'Failed to create pass.');
     } finally {
@@ -46,9 +54,9 @@ export default function MonthlyPasses() {
 
   const handleRenew = async (passId) => {
     try {
-      await passService.renewPass(passId, { months: 1 });
-      alert('Pass renewed for 1 month!');
-      window.location.reload();
+      const res = await passService.renewPass(passId, { months: 1, paymentMethod: 'VNPAY' });
+      redirectToVnpay(res?.data?.paymentUrl);
+      return;
     } catch (err) {
       alert(err?.message || 'Failed to renew pass.');
     }
@@ -80,9 +88,14 @@ export default function MonthlyPasses() {
                   <span>{formatDate(pass.startDate)} — {formatDate(pass.endDate)}</span>
                 </div>
               </div>
+              {pass.status === 'PENDING_PAYMENT' && (
+                <div className="pass-status-note">
+                  This pass is waiting for VNPay confirmation and cannot be used for check-in yet.
+                </div>
+              )}
               {pass.status === 'ACTIVE' && (
                 <div className="pass-card-actions">
-                  <button className="btn btn-secondary btn-sm" onClick={() => handleRenew(pass.id)}><RotateCw size={14} /> Renew</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => handleRenew(pass.id)}><RotateCw size={14} /> Renew with VNPay</button>
                   <button className="btn btn-ghost btn-sm" style={{ color: 'var(--color-occupied)' }} onClick={() => handleCancel(pass.id)}><X size={14} /> Cancel</button>
                 </div>
               )}
@@ -134,10 +147,19 @@ export default function MonthlyPasses() {
                   {[1, 2, 3, 6, 12].map(m => <option key={m} value={m}>{m} Month{m > 1 ? 's' : ''}</option>)}
                 </select>
               </div>
+              <div className="form-group">
+                <label className="form-label">Payment Method</label>
+                <input className="form-input" value="VNPay Sandbox" readOnly />
+                <p style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginTop: '6px' }}>
+                  Monthly passes are paid online only. You will be redirected to VNPay sandbox immediately.
+                </p>
+              </div>
               {formError && <p style={{ color: 'var(--color-occupied)', fontSize: '13px' }}>{formError}</p>}
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Processing...' : 'Buy Pass'}</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? 'Processing...' : 'Continue to VNPay'}
+                </button>
               </div>
             </form>
           </div>

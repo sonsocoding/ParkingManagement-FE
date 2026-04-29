@@ -24,6 +24,13 @@ export default function LotDetail() {
   const [booking, setBooking] = useState(false);
   const [bookError, setBookError] = useState(null);
 
+  const redirectToVnpay = (paymentUrl) => {
+    if (!paymentUrl) {
+      throw new Error('VNPay link was not returned by the server.');
+    }
+    window.location.assign(paymentUrl);
+  };
+
   if (lotLoading || slotsLoading) {
     return (
       <>
@@ -73,7 +80,7 @@ export default function LotDetail() {
     try {
       const startTime = new Date(Date.now() + 60 * 1000);
       const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
-      await bookingService.createBooking({
+      const res = await bookingService.createBooking({
         parkingSlotId: selectedSlot,
         parkingLotId: id,
         vehicleId: selectedVehicleId,
@@ -82,7 +89,8 @@ export default function LotDetail() {
         paymentMethod,
       });
       if (paymentMethod === 'VNPAY') {
-        alert('Booking created with pending VNPay payment. It will stay pending until payment confirmation is received.');
+        redirectToVnpay(res?.data?.paymentUrl);
+        return;
       }
       navigate('/my-bookings');
     } catch (err) {
@@ -244,14 +252,14 @@ export default function LotDetail() {
               </div>
             )}
 
-            <div className="booking-notice">
-              <Info size={14} />
-              <span>
-                {paymentMethod === 'VNPAY'
-                  ? 'VNPay bookings are created as pending until the payment gateway confirms them.'
+                <div className="booking-notice">
+                  <Info size={14} />
+                  <span>
+                    {paymentMethod === 'VNPAY'
+                  ? 'VNPay bookings open the sandbox checkout immediately. Your booking stays pending until VNPay confirms it.'
                   : 'Cash bookings are reserved now and paid when you check out.'}
-              </span>
-            </div>
+                  </span>
+                </div>
           </div>
         </div>
       </div>
