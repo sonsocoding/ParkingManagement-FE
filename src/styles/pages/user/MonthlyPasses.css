@@ -1,19 +1,448 @@
-.passes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-.pass-card { position: relative; overflow: hidden; }
-.pass-active { border-color: var(--color-available); border-width: 2px; }
-.pass-active::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--color-available); }
-.pass-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.pass-card-icon { width: 48px; height: 48px; background: var(--color-primary-bg); color: var(--color-primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; }
-.pass-card-type { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
-.pass-card-price { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
-.pass-card-dates { margin-bottom: 16px; }
-.pass-date { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
-.pass-status-note {
-  margin-bottom: 16px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(211, 161, 63, 0.14);
-  color: var(--text-secondary);
-  font-size: 13px;
+.passes-page {
+  display: grid;
 }
-.pass-card-actions { display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border-light); flex-wrap: wrap; }
+
+.passes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.pass-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 368px;
+  padding: 22px;
+  border: 1px solid var(--border-light);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(26, 35, 126, 0.08), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 1)),
+    var(--surface-card);
+  box-shadow: var(--shadow-md);
+}
+
+.dark .pass-card {
+  border-color: var(--border-light);
+  background:
+    radial-gradient(circle at top right, rgba(140, 158, 255, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    var(--surface-card);
+  box-shadow: var(--shadow-lg);
+}
+
+.pass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 4px;
+  background: transparent;
+}
+
+.pass-active {
+  border-color: rgba(67, 160, 71, 0.28);
+  box-shadow: 0 14px 34px rgba(67, 160, 71, 0.1);
+}
+
+.dark .pass-active {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+}
+
+.pass-active::before {
+  background: linear-gradient(90deg, #43a047 0%, #7bd77a 100%);
+}
+
+.pass-expired::before {
+  background: linear-gradient(90deg, #e53935 0%, #ff8a80 100%);
+}
+
+.pass-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.pass-card-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pass-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  border: 1px solid transparent;
+}
+
+.pass-type-car .pass-card-icon {
+  color: #5367da;
+  background: rgba(83, 103, 218, 0.1);
+  border-color: rgba(83, 103, 218, 0.12);
+}
+
+.pass-type-bike .pass-card-icon {
+  color: #059a84;
+  background: rgba(5, 154, 132, 0.1);
+  border-color: rgba(5, 154, 132, 0.12);
+}
+
+.dark .pass-type-car .pass-card-icon {
+  color: #cfd7ff;
+  background: rgba(115, 137, 255, 0.14);
+  border-color: rgba(115, 137, 255, 0.16);
+}
+
+.dark .pass-type-bike .pass-card-icon {
+  color: #c6fff6;
+  background: rgba(16, 191, 163, 0.12);
+  border-color: rgba(16, 191, 163, 0.14);
+}
+
+.pass-card-title {
+  margin-bottom: 6px;
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1.05;
+  color: var(--text-primary);
+}
+
+.pass-card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.pass-card-price strong {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.6vw, 34px);
+  color: var(--text-primary);
+}
+
+.pass-card-price span {
+  font-size: 14px;
+}
+
+.pass-state-pill {
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pass-state-active {
+  color: var(--color-available-text);
+  background: var(--color-available-bg);
+  border: 1px solid rgba(67, 160, 71, 0.18);
+}
+
+.pass-state-inactive {
+  color: var(--text-secondary);
+  background: var(--surface-card-hover);
+  border: 1px solid var(--border-light);
+}
+
+.pass-state-pending {
+  color: var(--color-reserved-text);
+  background: var(--color-reserved-bg);
+  border: 1px solid rgba(251, 140, 0, 0.18);
+}
+
+.pass-state-expired {
+  color: var(--color-occupied-text);
+  background: var(--color-occupied-bg);
+  border: 1px solid rgba(229, 57, 53, 0.18);
+}
+
+.pass-card-status {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+}
+
+.dark .pass-card-status {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pass-card-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pass-card-status p {
+  color: inherit;
+}
+
+.pass-urgency-pill {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--color-reserved-text);
+  background: var(--color-reserved-bg);
+  border: 1px solid rgba(251, 140, 0, 0.18);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pass-rules {
+  display: grid;
+  gap: 12px;
+}
+
+.pass-rules-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.pass-rules-list {
+  display: grid;
+  gap: 8px;
+}
+
+.pass-rule-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-light);
+}
+
+.dark .pass-rule-item {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pass-type-car .pass-rule-item svg {
+  color: #5367da;
+  flex: 0 0 auto;
+}
+
+.pass-type-bike .pass-rule-item svg {
+  color: #059a84;
+  flex: 0 0 auto;
+}
+
+.dark .pass-type-car .pass-rule-item svg {
+  color: #9ab0ff;
+}
+
+.dark .pass-type-bike .pass-rule-item svg {
+  color: #6ff0d9;
+}
+
+.pass-card-cta {
+  margin-top: auto;
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 16px;
+}
+
+.pass-modal {
+  max-width: 460px;
+}
+
+.pass-modal-eyebrow {
+  margin-bottom: 6px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pass-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pass-modal-summary,
+.pass-modal-section,
+.pass-modal-total,
+.pass-modal-note {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--surface-page);
+  border: 1px solid var(--border-light);
+}
+
+.dark .pass-modal-summary,
+.dark .pass-modal-section,
+.dark .pass-modal-total,
+.dark .pass-modal-note {
+  background: var(--surface-input);
+}
+
+.pass-modal-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pass-modal-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pass-modal-summary strong,
+.pass-modal-total strong {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--text-primary);
+}
+
+.pass-modal-payment,
+.pass-modal-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+}
+
+.pass-type-bike .pass-modal-payment svg,
+.pass-type-bike .pass-modal-note svg,
+.pass-modal-payment svg,
+.pass-modal-note svg {
+  color: var(--color-primary);
+  flex: 0 0 auto;
+}
+
+.pass-modal-section {
+  display: grid;
+  gap: 14px;
+}
+
+.pass-modal-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.duration-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.duration-option {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border-light);
+  background: var(--surface-card);
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.dark .duration-option {
+  background: var(--surface-card);
+}
+
+.duration-option:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-default);
+}
+
+.duration-option span {
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--text-primary);
+}
+
+.duration-option small {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.duration-option-active {
+  border-color: var(--border-focus);
+  background: var(--color-primary-bg);
+  box-shadow: inset 0 0 0 1px rgba(26, 35, 126, 0.08);
+}
+
+.dark .duration-option-active {
+  background: rgba(140, 158, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(140, 158, 255, 0.12);
+}
+
+.pass-modal-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-secondary);
+}
+
+.pass-modal-submit {
+  min-width: 190px;
+}
+
+@media (max-width: 960px) {
+  .passes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pass-card-header {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .pass-card {
+    min-height: auto;
+    padding: 20px;
+  }
+
+  .pass-card-title {
+    font-size: 24px;
+  }
+
+  .pass-card-status-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pass-modal-summary,
+  .modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .duration-options {
+    grid-template-columns: 1fr;
+  }
+
+  .pass-modal-submit {
+    min-width: 0;
+  }
+}

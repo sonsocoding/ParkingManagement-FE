@@ -73,6 +73,7 @@ Error:
 
 ### Monthly Pass
 
+- `PENDING_PAYMENT`
 - `ACTIVE`
 - `EXPIRED`
 - `CANCELLED`
@@ -102,8 +103,9 @@ Error:
 
 ### Monthly pass
 
-- tied to a vehicle
-- ownership matters
+- one active pass per user and vehicle type at a time
+- a pass may be used by any owned vehicle of that type
+- a pass may cover only one active parking session at a time across all lots
 - VNPay may be used for purchase or renewal
 
 ## Coordination Rules
