@@ -1,0 +1,25 @@
+.payments-sort-button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.payments-sort-button:hover {
+  color: var(--text-primary);
+}
+
+.payments-sort-button.active {
+  color: var(--text-primary);
+}
+
+.payments-sort-arrow {
+  font-size: 11px;
+  line-height: 1;
+}
