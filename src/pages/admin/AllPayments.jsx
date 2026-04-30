@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { useAllPayments } from '../../hooks/useApi';
 import { formatDateTime, formatCurrency } from '../../utils/formatters';
-import { Search, Filter } from 'lucide-react';
+import { Search } from 'lucide-react';
+import '../../styles/pages/user/MyPayments.css';
 
 export default function AllPayments() {
   const { payments, loading, error } = useAllPayments();
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
+
   const getPaymentType = (payment) => {
     if (payment.bookingId) return 'Booking';
     if (payment.parkingRecordId) return 'Walk-in';
@@ -14,9 +17,87 @@ export default function AllPayments() {
     return 'Other';
   };
 
-  const filteredPayments = payments.filter(p =>
-    (p.user?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getSortValue = (payment, key) => {
+    switch (key) {
+      case 'transactionId':
+        return (payment.id || '').toLowerCase();
+      case 'user':
+        return (payment.user?.fullName || '').toLowerCase();
+      case 'amount':
+        return Number(payment.amount) || 0;
+      case 'method':
+        return (payment.method || '').toLowerCase();
+      case 'type':
+        return getPaymentType(payment).toLowerCase();
+      case 'status':
+        return (payment.status || '').toLowerCase();
+      case 'date':
+        return payment.createdAt ? new Date(payment.createdAt).getTime() : 0;
+      default:
+        return 0;
+    }
+  };
+
+  const handleSort = (key) => {
+    setSortConfig((current) => ({
+      key,
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  const filteredPayments = payments.filter((payment) => {
+    const quickSearch = searchTerm.trim().toLowerCase();
+
+    if (
+      quickSearch
+      && !(payment.user?.fullName || '').toLowerCase().includes(quickSearch)
+      && !payment.id.toLowerCase().includes(quickSearch)
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const sortedPayments = useMemo(() => {
+    return [...filteredPayments].sort((a, b) => {
+      const valueA = getSortValue(a, sortConfig.key);
+      const valueB = getSortValue(b, sortConfig.key);
+      let comparison = 0;
+
+      if (typeof valueA === 'string' && typeof valueB === 'string') {
+        comparison = valueA.localeCompare(valueB);
+      } else {
+        comparison = valueA - valueB;
+      }
+
+      if (comparison !== 0) {
+        return sortConfig.direction === 'asc' ? comparison : -comparison;
+      }
+
+      const fallbackA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const fallbackB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      if (fallbackB !== fallbackA) return fallbackB - fallbackA;
+
+      return (b.id || '').localeCompare(a.id || '');
+    });
+  }, [filteredPayments, sortConfig]);
+
+  const renderSortButton = (label, key) => {
+    const isActive = sortConfig.key === key;
+    const arrow = isActive ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕';
+
+    return (
+      <button
+        type="button"
+        className={`payments-sort-button ${isActive ? 'active' : ''}`}
+        onClick={() => handleSort(key)}
+      >
+        <span>{label}</span>
+        <span className="payments-sort-arrow" aria-hidden="true">{arrow}</span>
+      </button>
+    );
+  };
 
   return (
     <>
@@ -29,13 +110,12 @@ export default function AllPayments() {
               <input
                 type="text"
                 className="form-input"
-                placeholder="Search by user..."
+                placeholder="Search user or transaction..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ paddingLeft: '36px' }}
               />
             </div>
-            <button className="btn btn-secondary btn-sm"><Filter size={16} /> Filter</button>
           </div>
 
           {loading && <p style={{ textAlign: 'center', padding: '40px' }}>Loading payments...</p>}
@@ -45,17 +125,17 @@ export default function AllPayments() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Transaction ID</th>
-                  <th>User</th>
-                  <th>Amount</th>
-                  <th>Method</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Date</th>
+                  <th>{renderSortButton('Transaction ID', 'transactionId')}</th>
+                  <th>{renderSortButton('User', 'user')}</th>
+                  <th>{renderSortButton('Amount', 'amount')}</th>
+                  <th>{renderSortButton('Method', 'method')}</th>
+                  <th>{renderSortButton('Type', 'type')}</th>
+                  <th>{renderSortButton('Status', 'status')}</th>
+                  <th>{renderSortButton('Date', 'date')}</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredPayments.map(p => (
+                {sortedPayments.map(p => (
                   <tr key={p.id}>
                     <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>{p.id.slice(0, 12)}…</td>
                     <td style={{ fontWeight: 500 }}>{p.user?.fullName || '—'}</td>
@@ -66,7 +146,7 @@ export default function AllPayments() {
                     <td style={{ fontSize: '13px' }}>{formatDateTime(p.createdAt)}</td>
                   </tr>
                 ))}
-                {!loading && filteredPayments.length === 0 && (
+                {!loading && sortedPayments.length === 0 && (
                   <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '32px' }}>No payments found.</td></tr>
                 )}
               </tbody>

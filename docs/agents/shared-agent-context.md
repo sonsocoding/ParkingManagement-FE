@@ -111,6 +111,13 @@ Error:
 - check-in should only attach a monthly pass when the booking explicitly chose `MONTHLY_PASS`
 - checkout releases the slot
 
+### Admin dashboard revenue
+
+- admin revenue overview comes from successful `Payment` rows, not directly from parking record costs
+- the admin dashboard uses `GET /api/payments/revenue-overview?days=7&weekOffset=0`
+- the endpoint returns `todayRevenue`, `totalRevenue`, `dateRangeLabel`, and a zero-filled `dailyRevenue` series for the requested window
+- monthly-pass-covered parking sessions do not create parking revenue payments and therefore do not appear in this revenue overview
+
 ### Monthly pass
 
 - one active pass per user and vehicle type at a time

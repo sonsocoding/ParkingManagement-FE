@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { useAllBookings } from '../../hooks/useApi';
 import { bookingService } from '../../api/index';
 import { formatDateTime, formatCurrency } from '../../utils/formatters';
-import { Search, Filter, ShieldAlert } from 'lucide-react';
+import { Search, ShieldAlert } from 'lucide-react';
+import '../../styles/pages/user/MyPayments.css';
 
 const ALLOWED_TRANSITIONS = {
   PENDING_PAYMENT: ['CONFIRMED', 'CANCELLED'],
@@ -16,11 +17,76 @@ export default function AllBookings() {
   const { bookings, loading, error } = useAllBookings();
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'timeFrame', direction: 'desc' });
 
-  const filteredBookings = bookings.filter(b =>
-    (b.user?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (b.vehicle?.plateNumber || '').toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBookings = bookings.filter((booking) =>
+    (booking.user?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase())
+    || (booking.vehicle?.plateNumber || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getSortValue = (booking, key) => {
+    switch (key) {
+      case 'userVehicle':
+        return `${booking.user?.fullName || ''} ${booking.vehicle?.plateNumber || ''} ${booking.vehicle?.vehicleType || ''}`.toLowerCase();
+      case 'location':
+        return `${booking.parkingLot?.name || ''} ${booking.slot?.slotNumber || booking.parkingSlotId || ''}`.toLowerCase();
+      case 'timeFrame':
+        return booking.startTime ? new Date(booking.startTime).getTime() : 0;
+      case 'cost':
+        return Number(booking.estimatedCost) || 0;
+      case 'status':
+        return (booking.status || '').toLowerCase();
+      default:
+        return 0;
+    }
+  };
+
+  const handleSort = (key) => {
+    setSortConfig((current) => ({
+      key,
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  const sortedBookings = useMemo(() => {
+    return [...filteredBookings].sort((a, b) => {
+      const valueA = getSortValue(a, sortConfig.key);
+      const valueB = getSortValue(b, sortConfig.key);
+      let comparison = 0;
+
+      if (typeof valueA === 'string' && typeof valueB === 'string') {
+        comparison = valueA.localeCompare(valueB);
+      } else {
+        comparison = valueA - valueB;
+      }
+
+      if (comparison !== 0) {
+        return sortConfig.direction === 'asc' ? comparison : -comparison;
+      }
+
+      const fallbackA = a.startTime ? new Date(a.startTime).getTime() : 0;
+      const fallbackB = b.startTime ? new Date(b.startTime).getTime() : 0;
+      if (fallbackB !== fallbackA) return fallbackB - fallbackA;
+
+      return (b.id || '').localeCompare(a.id || '');
+    });
+  }, [filteredBookings, sortConfig]);
+
+  const renderSortButton = (label, key) => {
+    const isActive = sortConfig.key === key;
+    const arrow = isActive ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕';
+
+    return (
+      <button
+        type="button"
+        className={`payments-sort-button ${isActive ? 'active' : ''}`}
+        onClick={() => handleSort(key)}
+      >
+        <span>{label}</span>
+        <span className="payments-sort-arrow" aria-hidden="true">{arrow}</span>
+      </button>
+    );
+  };
 
   const handleStatusChange = async (bookingId, next) => {
     if (!window.confirm(`Change status to ${next}?`)) return;
@@ -54,7 +120,6 @@ export default function AllBookings() {
                 style={{ paddingLeft: '36px' }}
               />
             </div>
-            <button className="btn btn-secondary btn-sm"><Filter size={16} /> Filter</button>
           </div>
 
           {loading && <p style={{ textAlign: 'center', padding: '40px' }}>Loading bookings...</p>}
@@ -64,16 +129,16 @@ export default function AllBookings() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>User & Vehicle</th>
-                  <th>Location</th>
-                  <th>Time Frame</th>
-                  <th>Cost</th>
-                  <th>Status</th>
+                  <th>{renderSortButton('User & Vehicle', 'userVehicle')}</th>
+                  <th>{renderSortButton('Location', 'location')}</th>
+                  <th>{renderSortButton('Time Frame', 'timeFrame')}</th>
+                  <th>{renderSortButton('Cost', 'cost')}</th>
+                  <th>{renderSortButton('Status', 'status')}</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredBookings.map(b => (
+                {sortedBookings.map(b => (
                   <tr key={b.id}>
                     <td>
                       <div style={{ fontWeight: 600 }}>{b.user?.fullName || '—'}</div>
@@ -111,7 +176,7 @@ export default function AllBookings() {
                     </td>
                   </tr>
                 ))}
-                {!loading && filteredBookings.length === 0 && (
+                {!loading && sortedBookings.length === 0 && (
                   <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '32px' }}>No bookings found.</td></tr>
                 )}
               </tbody>

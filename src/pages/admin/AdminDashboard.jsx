@@ -1,30 +1,42 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import StatCard from '../../components/shared/StatCard';
 import {
-  ParkingSquare, Car, TrendingUp, Users, CalendarCheck,
-  CreditCard, Ticket, ArrowUpRight, ArrowDownRight, Clock, MapPin
+  ParkingSquare, Car, TrendingUp, Users, CalendarCheck, Clock, MapPin, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { useAllLots } from '../../hooks/useApi';
 import { formatCurrency } from '../../utils/formatters';
-import { recordService } from '../../api/index';
+import { paymentService, recordService } from '../../api/index';
 import '../../styles/pages/admin/AdminDashboard.css';
 
-// Revenue sparkline uses static data until BE provides a /admin/stats endpoint
-const revenueByDay = [
-  { date: '04/19', amount: 380000 },
-  { date: '04/20', amount: 420000 },
-  { date: '04/21', amount: 310000 },
-  { date: '04/22', amount: 550000 },
-  { date: '04/23', amount: 480000 },
-  { date: '04/24', amount: 331000 },
-  { date: '04/25', amount: 270000 },
-];
+const buildDefaultRevenueOverview = () => ({
+  todayRevenue: 0,
+  totalRevenue: 0,
+  weekOffset: 0,
+  dateRangeLabel: '',
+  dailyRevenue: Array.from({ length: 7 }, (_, index) => {
+    const day = new Date();
+    day.setDate(day.getDate() - (6 - index));
+
+    return {
+      date: new Intl.DateTimeFormat('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+      }).format(day),
+      amount: 0,
+    };
+  }),
+});
 
 export default function AdminDashboard() {
   const { lots, loading: lotsLoading } = useAllLots();
   const [activeRecords, setActiveRecords] = useState([]);
   const [recordsLoading, setRecordsLoading] = useState(true);
+  const [revenueOverview, setRevenueOverview] = useState(buildDefaultRevenueOverview);
+  const [todayRevenue, setTodayRevenue] = useState(0);
+  const [revenueLoading, setRevenueLoading] = useState(true);
+  const [revenueError, setRevenueError] = useState('');
+  const [weekOffset, setWeekOffset] = useState(0);
 
   useEffect(() => {
     recordService.getAllRecords()
@@ -36,7 +48,47 @@ export default function AdminDashboard() {
       .finally(() => setRecordsLoading(false));
   }, []);
 
-  const maxRevenue = Math.max(...revenueByDay.map(d => d.amount));
+  useEffect(() => {
+    paymentService.getRevenueOverview(7, 0)
+      .then((res) => {
+        const overview = res.data?.revenueOverview;
+        setTodayRevenue(Number(overview?.todayRevenue) || 0);
+      })
+      .catch(() => {
+        setTodayRevenue(0);
+      });
+  }, []);
+
+  useEffect(() => {
+    setRevenueLoading(true);
+    paymentService.getRevenueOverview(7, weekOffset)
+      .then((res) => {
+        const overview = res.data?.revenueOverview;
+        if (!overview || !Array.isArray(overview.dailyRevenue)) {
+          throw new Error('Invalid revenue overview payload');
+        }
+
+        setRevenueOverview({
+          todayRevenue: Number(overview.todayRevenue) || 0,
+          totalRevenue: Number(overview.totalRevenue) || 0,
+          weekOffset: Number(overview.weekOffset) || 0,
+          dateRangeLabel: overview.dateRangeLabel || '',
+          dailyRevenue: overview.dailyRevenue.map((day) => ({
+            date: day.date,
+            amount: Number(day.amount) || 0,
+          })),
+        });
+        setRevenueError('');
+      })
+      .catch(() => {
+        setRevenueOverview(buildDefaultRevenueOverview());
+        setRevenueError('Unable to load revenue right now.');
+      })
+      .finally(() => setRevenueLoading(false));
+  }, [weekOffset]);
+
+  const maxRevenue = Math.max(...revenueOverview.dailyRevenue.map((day) => day.amount), 0);
+  const revenueWindowLabel = revenueOverview.dateRangeLabel || 'Last 7 days';
 
   // Aggregate stats from lots
   const totalSlots = lots.reduce((s, l) => s + (l.totalSlots || 0), 0);
@@ -51,37 +103,60 @@ export default function AdminDashboard() {
         subtitle={`Welcome back — ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`}
       />
       <div className="page-content">
-        {/* Stats Grid */}
         <div className="stats-grid">
-          <StatCard icon={ParkingSquare} label="Total Slots" value={totalSlots} color="primary" subtitle={`${lots.length} parking lots`} />
-          <StatCard icon={Car} label="Occupied" value={occupiedSlots} color="red" subtitle={`${occupancyRate}% occupancy`} />
-          <StatCard icon={TrendingUp} label="Today's Revenue" value={formatCurrency(revenueByDay.at(-1)?.amount || 0)} color="green" trend={12.5} />
-          <StatCard icon={CalendarCheck} label="Active Check-ins" value={activeRecords.length} color="blue" subtitle="Right now" />
+          <StatCard icon={ParkingSquare} label="Total Slots" value={totalSlots} color="primary" />
+          <StatCard icon={Car} label="Occupied" value={occupiedSlots} color="red" />
+          <StatCard
+            icon={TrendingUp}
+            label="Today's Revenue"
+            value={formatCurrency(todayRevenue)}
+            color="green"
+          />
+          <StatCard icon={CalendarCheck} label="Active Check-ins" value={activeRecords.length} color="blue" />
           <StatCard icon={Users} label="Available Slots" value={availableSlots} color="primary" />
         </div>
 
         <div className="dashboard-grid">
-          {/* Revenue Chart */}
           <div className="card dashboard-chart-card">
             <div className="dashboard-card-header">
               <div>
                 <h3 className="headline-sm">Revenue Overview</h3>
-                <p className="body-sm">Last 7 days</p>
+                <div className="revenue-toolbar">
+                  <p className="body-sm">{revenueWindowLabel}</p>
+                  <div className="revenue-nav">
+                    <button
+                      type="button"
+                      className="revenue-nav-button"
+                      onClick={() => setWeekOffset((current) => current + 1)}
+                      aria-label="Show previous week"
+                    >
+                      <ChevronLeft size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      className="revenue-nav-button"
+                      onClick={() => setWeekOffset((current) => Math.max(current - 1, 0))}
+                      disabled={weekOffset === 0}
+                      aria-label="Show next week"
+                    >
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+                </div>
               </div>
               <div className="dashboard-card-total">
-                <span className="display-lg">{formatCurrency(revenueByDay.reduce((s, d) => s + d.amount, 0))}</span>
-                <span className="body-sm" style={{ color: 'var(--color-available)' }}>
-                  <ArrowUpRight size={14} /> +12.5% vs last month
-                </span>
+                <span className="display-lg">{formatCurrency(revenueOverview.totalRevenue)}</span>
+                <span className="body-sm revenue-card-caption">Successful payments only</span>
               </div>
             </div>
+            {revenueError && <p className="revenue-card-error">{revenueError}</p>}
             <div className="chart-bars">
-              {revenueByDay.map((day, i) => (
-                <div key={i} className="chart-bar-group">
+              {revenueOverview.dailyRevenue.map((day) => (
+                <div key={day.date} className="chart-bar-group">
                   <div className="chart-bar-wrap">
                     <div
                       className="chart-bar"
-                      style={{ height: `${(day.amount / maxRevenue) * 100}%` }}
+                      style={{ height: `${maxRevenue > 0 ? (day.amount / maxRevenue) * 100 : 0}%` }}
                     >
                       <span className="chart-bar-tooltip">{formatCurrency(day.amount)}</span>
                     </div>
@@ -92,7 +167,6 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Parking Lots Overview */}
           <div className="card dashboard-lots-card">
             <div className="dashboard-card-header">
               <h3 className="headline-sm">Parking Lots</h3>
@@ -126,7 +200,6 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* Active Check-ins */}
           <div className="card dashboard-checkins-card">
             <div className="dashboard-card-header">
               <h3 className="headline-sm">Active Check-ins</h3>

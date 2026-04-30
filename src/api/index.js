@@ -69,6 +69,7 @@ export const recordService = {
 export const paymentService = {
   getMyPayments: () => axiosClient.get('/payments/me'),
   getAllPayments: () => axiosClient.get('/payments'),
+  getRevenueOverview: (days = 7, weekOffset = 0) => axiosClient.get(`/payments/revenue-overview?days=${days}&weekOffset=${weekOffset}`),
   getPaymentById: (id) => axiosClient.get(`/payments/${id}`),
   getPaymentsByUserId: (userId) => axiosClient.get(`/payments/user/${userId}`),
   createPayment: (data) => axiosClient.post('/payments', data),
