@@ -108,7 +108,7 @@ export default function MyPayments() {
                 </tr>
               ))}
               {!loading && sortedPayments.length === 0 && (
-                <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '32px' }}>No payment records yet. Cash bookings and walk-ins appear here after checkout.</td></tr>
+                <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '32px' }}>No payment records yet. Cash bookings and walk-ins appear here after checkout, while monthly-pass-covered bookings do not create separate parking payments.</td></tr>
               )}
             </tbody>
           </table>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/layout/TopBar';
 import { MapPin, Car, Bike, Info, ArrowLeft, Wrench } from 'lucide-react';
-import { useParkingLot, useLotSlots, useMyVehicles } from '../../hooks/useApi';
+import { useParkingLot, useLotSlots, useMyPasses, useMyVehicles } from '../../hooks/useApi';
 import { formatCurrency } from '../../utils/formatters';
 import { bookingService } from '../../api/index';
 import { getZoneKey, normalizeZones, sortParkingSlotsByNumber } from '../../utils/parkingZones';
@@ -15,6 +15,7 @@ export default function LotDetail() {
   const { parkingLot, loading: lotLoading } = useParkingLot(id);
   const { parkingSlots, loading: slotsLoading } = useLotSlots(id);
   const { vehicles } = useMyVehicles();
+  const { monthlyPasses } = useMyPasses();
 
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState('ALL');
@@ -72,13 +73,22 @@ export default function LotDetail() {
     : parseFloat(parkingLot.carHourlyRate);
   const estimatedCost = rate * duration;
 
+  const eligiblePass = monthlyPasses.find((pass) => (
+    pass.status === 'ACTIVE'
+    && pass.payment?.status === 'SUCCESS'
+    && pass.vehicleType === selectedSlotObj?.vehicleType
+  )) || null;
+  const effectivePaymentMethod = paymentMethod === 'MONTHLY_PASS' && !eligiblePass ? 'CASH' : paymentMethod;
+  const totalDue = effectivePaymentMethod === 'MONTHLY_PASS' ? 0 : estimatedCost;
+
   const handleConfirmBooking = async () => {
     if (!selectedVehicleId) { setBookError('Please select a vehicle.'); return; }
     if (!selectedSlot) { setBookError('Please select a slot.'); return; }
     setBooking(true);
     setBookError(null);
     try {
-      const startTime = new Date(Date.now() + 60 * 1000);
+      const startTime = new Date();
+      startTime.setMinutes(startTime.getMinutes() + 1);
       const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
       const res = await bookingService.createBooking({
         parkingSlotId: selectedSlot,
@@ -86,9 +96,9 @@ export default function LotDetail() {
         vehicleId: selectedVehicleId,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
-        paymentMethod,
+        paymentMethod: effectivePaymentMethod,
       });
-      if (paymentMethod === 'VNPAY') {
+      if (effectivePaymentMethod === 'VNPAY') {
         redirectToVnpay(res?.data?.paymentUrl);
         return;
       }
@@ -223,15 +233,26 @@ export default function LotDetail() {
 
                 <div className="form-group">
                   <label className="form-label">Payment Method</label>
-                  <select className="form-select" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+                  <select className="form-select" value={effectivePaymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
                     <option value="CASH">Cash on exit</option>
                     <option value="VNPAY">VNPay</option>
+                    {eligiblePass && <option value="MONTHLY_PASS">Monthly Pass</option>}
                   </select>
+                  {!eligiblePass && selectedSlotObj && (
+                    <p style={{ fontSize: '11px', marginTop: '4px', color: 'var(--text-secondary)' }}>
+                      No active {selectedSlotObj.vehicleType.toLowerCase()} monthly pass covers this booking window.
+                    </p>
+                  )}
+                  {eligiblePass && effectivePaymentMethod === 'MONTHLY_PASS' && (
+                    <p style={{ fontSize: '11px', marginTop: '4px', color: 'var(--color-available)' }}>
+                      Covered by your active {eligiblePass.vehicleType.toLowerCase()} monthly pass.
+                    </p>
+                  )}
                 </div>
 
                 <div className="booking-total">
                   <span>Estimated Total</span>
-                  <span className="total-amount">{formatCurrency(estimatedCost)}</span>
+                  <span className="total-amount">{formatCurrency(totalDue)}</span>
                 </div>
 
                 {bookError && <p style={{ color: 'var(--color-occupied)', fontSize: '13px', marginBottom: '8px' }}>{bookError}</p>}
@@ -241,7 +262,13 @@ export default function LotDetail() {
                   onClick={handleConfirmBooking}
                   disabled={booking}
                 >
-                  {booking ? 'Booking...' : paymentMethod === 'VNPAY' ? 'Create VNPay Booking' : 'Confirm Cash Booking'}
+                  {booking
+                    ? 'Booking...'
+                    : effectivePaymentMethod === 'VNPAY'
+                      ? 'Create VNPay Booking'
+                      : effectivePaymentMethod === 'MONTHLY_PASS'
+                        ? 'Confirm Monthly Pass Booking'
+                        : 'Confirm Cash Booking'}
                 </button>
               </div>
             ) : (
@@ -255,9 +282,11 @@ export default function LotDetail() {
                 <div className="booking-notice">
                   <Info size={14} />
                   <span>
-                    {paymentMethod === 'VNPAY'
-                  ? 'VNPay bookings open the sandbox checkout immediately. Your booking stays pending until VNPay confirms it.'
-                  : 'Cash bookings are reserved now and paid when you check out.'}
+                    {effectivePaymentMethod === 'VNPAY'
+                      ? 'VNPay bookings open the sandbox checkout immediately. Your booking stays pending until VNPay confirms it.'
+                      : effectivePaymentMethod === 'MONTHLY_PASS'
+                        ? 'This booking is covered by your active monthly pass, so no checkout payment is required.'
+                        : 'Cash bookings are reserved now and paid when you check out.'}
                   </span>
                 </div>
           </div>

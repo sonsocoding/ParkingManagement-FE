@@ -17,6 +17,12 @@ export default function MyBookings() {
     return status.charAt(0) + status.slice(1).toLowerCase();
   };
 
+  const formatPaymentMethodLabel = (method) => {
+    if (method === 'VNPAY') return 'VNPay';
+    if (method === 'MONTHLY_PASS') return 'Monthly Pass';
+    return 'Cash on exit';
+  };
+
   const VehicleIcon = ({ vehicleType }) =>
     vehicleType === 'MOTORBIKE' ? <Bike size={16} /> : <Car size={16} />;
 
@@ -94,6 +100,9 @@ export default function MyBookings() {
                   <Clock size={16} />
                   <span>{formatDateTime(b.startTime)} → {formatDateTime(b.endTime)}</span>
                 </div>
+                <div className="booking-detail">
+                  <span>Payment: {formatPaymentMethodLabel(b.paymentMethod)}</span>
+                </div>
               </div>
 
               {b.status === 'PENDING_PAYMENT' && (
@@ -114,6 +123,11 @@ export default function MyBookings() {
 
               {b.status === 'CONFIRMED' && (
                 <div className="booking-card-actions">
+                  <div style={{ fontSize: '13px', color: 'var(--text-secondary)', flex: 1 }}>
+                    {b.paymentMethod === 'MONTHLY_PASS'
+                      ? 'This booking is covered by your monthly pass, so no payment will be collected at checkout.'
+                      : 'Your slot is reserved and ready for check-in.'}
+                  </div>
                   <button
                     className="btn btn-primary btn-sm"
                     onClick={() => handleCheckIn(b)}
@@ -135,7 +149,9 @@ export default function MyBookings() {
               {b.status === 'COMPLETED' && (
                 <div className="booking-card-actions">
                   <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                    Parking session finished. Any cash payment appears in My Payments after checkout.
+                    {b.paymentMethod === 'MONTHLY_PASS'
+                      ? 'Parking session finished under your monthly pass. No separate parking payment was created.'
+                      : 'Parking session finished. Any cash payment appears in My Payments after checkout.'}
                   </div>
                 </div>
               )}

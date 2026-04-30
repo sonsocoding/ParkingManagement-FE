@@ -95,10 +95,18 @@ Error:
 - user is redirected to gateway
 - backend IPN confirms or fails final payment outcome
 
+### Booking with Monthly Pass
+
+- booking created only when an eligible active pass covers the selected vehicle type and booking window
+- slot reserved
+- booking confirmed
+- no separate parking payment created
+
 ### Check-in and checkout
 
 - walk-in check-in requires `AVAILABLE`
 - booking-backed check-in requires `RESERVED` and confirmed booking
+- check-in should only attach a monthly pass when the booking explicitly chose `MONTHLY_PASS`
 - checkout releases the slot
 
 ### Monthly pass
