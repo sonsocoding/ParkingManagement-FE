@@ -73,3 +73,21 @@
   padding-top: 14px;
   border-top: 1px solid var(--border-light);
 }
+
+.booking-inline-message {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.booking-inline-message-success {
+  background: var(--color-available-bg);
+  color: var(--color-available-text);
+}
+
+.booking-inline-message-error {
+  background: var(--color-occupied-bg);
+  color: var(--color-occupied-text);
+}

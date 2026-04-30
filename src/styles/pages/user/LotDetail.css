@@ -220,6 +220,13 @@
   background-position: right 10px center;
 }
 
+.helper-text {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 .booking-total {
   display: flex;
   align-items: center;

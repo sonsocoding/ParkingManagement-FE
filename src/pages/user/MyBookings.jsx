@@ -1,17 +1,43 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { CalendarCheck, Clock, Car, Bike, ParkingSquare, X } from 'lucide-react';
-import { useMyBookings } from '../../hooks/useApi';
+import { useMyBookings, useMyRecords } from '../../hooks/useApi';
 import { bookingService, recordService } from '../../api/index';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
+import { getVehicleUsageMessage } from '../../utils/vehicleUsageMessages';
 import '../../styles/pages/user/MyBookings.css';
 
 export default function MyBookings() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const { bookings, loading, error } = useMyBookings();
+  const { parkingRecords } = useMyRecords();
   const [actionLoading, setActionLoading] = useState(null);
+  const [bookingItems, setBookingItems] = useState([]);
+  const [actionMessageByBookingId, setActionMessageByBookingId] = useState({});
+  const [recentlyCheckedInBookingIds, setRecentlyCheckedInBookingIds] = useState([]);
 
-  const filtered = statusFilter === 'ALL' ? bookings : bookings.filter(b => b.status === statusFilter);
+  useEffect(() => {
+    setBookingItems(bookings);
+  }, [bookings]);
+
+  const activeBookingRecordIds = useMemo(
+    () =>
+      new Set(
+        parkingRecords
+          .filter((record) => record.status === 'CHECKED_IN' && record.bookingId)
+          .map((record) => record.bookingId)
+      ),
+    [parkingRecords]
+  );
+
+  const checkedInBookingIds = useMemo(
+    () => new Set([...activeBookingRecordIds, ...recentlyCheckedInBookingIds]),
+    [activeBookingRecordIds, recentlyCheckedInBookingIds]
+  );
+
+  const filtered = statusFilter === 'ALL'
+    ? bookingItems
+    : bookingItems.filter(b => b.status === statusFilter);
   const formatStatusLabel = (status) => {
     if (status === 'PENDING_PAYMENT') return 'Pending Payment';
     return status.charAt(0) + status.slice(1).toLowerCase();
@@ -29,11 +55,26 @@ export default function MyBookings() {
   const handleCancel = async (bookingId) => {
     if (!window.confirm('Cancel this booking?')) return;
     setActionLoading(bookingId);
+    setActionMessageByBookingId((current) => ({ ...current, [bookingId]: null }));
     try {
       await bookingService.cancelBooking(bookingId);
-      window.location.reload(); // Refresh to get updated status
+      setBookingItems((current) =>
+        current.map((booking) => (
+          booking.id === bookingId ? { ...booking, status: 'CANCELLED' } : booking
+        ))
+      );
+      setActionMessageByBookingId((current) => ({
+        ...current,
+        [bookingId]: { type: 'success', text: 'Booking cancelled successfully.' },
+      }));
     } catch (err) {
-      alert(err?.message || 'Failed to cancel booking.');
+      setActionMessageByBookingId((current) => ({
+        ...current,
+        [bookingId]: {
+          type: 'error',
+          text: getVehicleUsageMessage(err?.message, 'Failed to cancel booking.'),
+        },
+      }));
     } finally {
       setActionLoading(null);
     }
@@ -41,6 +82,7 @@ export default function MyBookings() {
 
   const handleCheckIn = async (booking) => {
     setActionLoading(booking.id);
+    setActionMessageByBookingId((current) => ({ ...current, [booking.id]: null }));
     try {
       await recordService.checkIn({
         vehicleId: booking.vehicleId,
@@ -48,10 +90,24 @@ export default function MyBookings() {
         parkingLotId: booking.parkingLotId,
         bookingId: booking.id,
       });
-      alert('Checked in successfully!');
-      window.location.reload();
+      setActionMessageByBookingId((current) => ({
+        ...current,
+        [booking.id]: {
+          type: 'success',
+          text: 'Checked in successfully. This vehicle is now in an active parking session.',
+        },
+      }));
+      setRecentlyCheckedInBookingIds((current) => (
+        current.includes(booking.id) ? current : [...current, booking.id]
+      ));
     } catch (err) {
-      alert(err?.message || 'Check-in failed.');
+      setActionMessageByBookingId((current) => ({
+        ...current,
+        [booking.id]: {
+          type: 'error',
+          text: getVehicleUsageMessage(err?.message, 'Check-in failed.'),
+        },
+      }));
     } finally {
       setActionLoading(null);
     }
@@ -75,6 +131,13 @@ export default function MyBookings() {
         <div className="bookings-list">
           {filtered.map((b) => (
             <div key={b.id} className="booking-card card">
+              {actionMessageByBookingId[b.id] && (
+                <div
+                  className={`booking-inline-message booking-inline-message-${actionMessageByBookingId[b.id].type}`}
+                >
+                  {actionMessageByBookingId[b.id].text}
+                </div>
+              )}
               <div className="booking-card-top">
                 <div className="booking-card-lot">
                   <h3>{b.parkingLot?.name || 'Unknown Lot'}</h3>
@@ -124,22 +187,24 @@ export default function MyBookings() {
               {b.status === 'CONFIRMED' && (
                 <div className="booking-card-actions">
                   <div style={{ fontSize: '13px', color: 'var(--text-secondary)', flex: 1 }}>
-                    {b.paymentMethod === 'MONTHLY_PASS'
+                    {checkedInBookingIds.has(b.id)
+                      ? 'This booking has already been checked in. Use Parking History when you are ready to check out.'
+                      : b.paymentMethod === 'MONTHLY_PASS'
                       ? 'This booking is covered by your monthly pass, so no payment will be collected at checkout.'
                       : 'Your slot is reserved and ready for check-in.'}
                   </div>
                   <button
                     className="btn btn-primary btn-sm"
                     onClick={() => handleCheckIn(b)}
-                    disabled={actionLoading === b.id}
+                    disabled={actionLoading === b.id || checkedInBookingIds.has(b.id)}
                   >
-                    {actionLoading === b.id ? '...' : 'Check In'}
+                    {actionLoading === b.id ? '...' : checkedInBookingIds.has(b.id) ? 'Checked In' : 'Check In'}
                   </button>
                   <button
                     className="btn btn-ghost btn-sm"
                     style={{ color: 'var(--color-occupied)' }}
                     onClick={() => handleCancel(b.id)}
-                    disabled={actionLoading === b.id}
+                    disabled={actionLoading === b.id || checkedInBookingIds.has(b.id)}
                   >
                     <X size={14} /> Cancel
                   </button>

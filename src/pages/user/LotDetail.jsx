@@ -6,6 +6,7 @@ import { useParkingLot, useLotSlots, useMyPasses, useMyVehicles } from '../../ho
 import { formatCurrency } from '../../utils/formatters';
 import { bookingService } from '../../api/index';
 import { getZoneKey, normalizeZones, sortParkingSlotsByNumber } from '../../utils/parkingZones';
+import { getVehicleUsageMessage } from '../../utils/vehicleUsageMessages';
 import '../../styles/pages/user/LotDetail.css';
 
 export default function LotDetail() {
@@ -104,7 +105,7 @@ export default function LotDetail() {
       }
       navigate('/my-bookings');
     } catch (err) {
-      setBookError(err?.message || 'Booking failed. Please try again.');
+      setBookError(getVehicleUsageMessage(err?.message, 'Booking failed. Please try again.'));
     } finally {
       setBooking(false);
     }
@@ -216,7 +217,14 @@ export default function LotDetail() {
 
                 <div className="form-group">
                   <label className="form-label">Vehicle</label>
-                  <select className="form-select" value={selectedVehicleId} onChange={e => setSelectedVehicleId(e.target.value)}>
+                  <select
+                    className="form-select"
+                    value={selectedVehicleId}
+                    onChange={e => {
+                      setSelectedVehicleId(e.target.value);
+                      setBookError(null);
+                    }}
+                  >
                     <option value="" disabled hidden>Select a vehicle...</option>
                     {vehicles
                       .filter(v => v.vehicleType === selectedSlotObj?.vehicleType)
@@ -227,6 +235,11 @@ export default function LotDetail() {
                   {vehicles.filter(v => v.vehicleType === selectedSlotObj?.vehicleType).length === 0 && (
                     <p style={{ color: 'var(--color-occupied)', fontSize: '11px', marginTop: '4px' }}>
                       No {selectedSlotObj?.vehicleType?.toLowerCase()}s registered.
+                    </p>
+                  )}
+                  {vehicles.filter(v => v.vehicleType === selectedSlotObj?.vehicleType).length > 0 && (
+                    <p className="helper-text">
+                      A vehicle can only be used in one active booking or parking session at a time.
                     </p>
                   )}
                 </div>

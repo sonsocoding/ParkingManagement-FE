@@ -106,6 +106,8 @@ Error:
 
 - walk-in check-in requires `AVAILABLE`
 - booking-backed check-in requires `RESERVED` and confirmed booking
+- a vehicle may have only one active usage at a time across bookings and parking sessions
+- active usage means booking status `PENDING_PAYMENT` or `CONFIRMED`, or parking record status `CHECKED_IN`
 - check-in should only attach a monthly pass when the booking explicitly chose `MONTHLY_PASS`
 - checkout releases the slot
 
