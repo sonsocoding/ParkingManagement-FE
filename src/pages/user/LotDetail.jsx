@@ -207,7 +207,7 @@ export default function LotDetail() {
                 <div className="form-group">
                   <label className="form-label">Vehicle</label>
                   <select className="form-select" value={selectedVehicleId} onChange={e => setSelectedVehicleId(e.target.value)}>
-                    <option value="">Select a vehicle...</option>
+                    <option value="" disabled hidden>Select a vehicle...</option>
                     {vehicles
                       .filter(v => v.vehicleType === selectedSlotObj?.vehicleType)
                       .map(v => (
