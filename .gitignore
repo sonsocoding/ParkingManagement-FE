@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 .env
+AGENT.md
+docs/agents/

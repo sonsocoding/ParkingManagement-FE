@@ -8,13 +8,13 @@ Use this file to quickly locate code in the `frontend/` app.
 
 ```text
 frontend/
-├── AGENT.md
 ├── docs/
-│   ├── AGENT.md
 │   ├── DESIGN.md
+│   ├── folder-structure.md
 │   └── agents/
+│       ├── AGENT.md
+│       ├── README.md
 │       ├── frontend-agent.md
-│       ├── frontend-folder-structure.md
 │       └── shared-agent-context.md
 ├── src/
 │   ├── api/
