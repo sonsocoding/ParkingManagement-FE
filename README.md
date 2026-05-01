@@ -1,43 +1,76 @@
-# Smart Parking OS Frontend
+# Parking Management System - Frontend
 
-React + Vite frontend for the parking management system.
+This repository contains the frontend for my parking management project. I built it to practice creating a complete user interface on top of a real backend, with both user and admin workflows.
 
-## Current State
+## What This Frontend Does
 
-- The app is already connected to the backend through `axios`
-- User flows for bookings, monthly passes, payments, and admin pages use real API calls
-- VNPay sandbox is supported for:
-  - booking creation
-  - monthly pass purchase
-  - monthly pass renewal
+- Provides login and registration pages
+- Shows different flows for normal users and admins
+- Connects to the backend with `axios`
+- Supports booking, vehicle management, payment tracking, monthly passes, and parking history
+- Includes VNPay return handling and payment result feedback
+- Includes an admin dashboard for users, lots, bookings, payments, and slot monitoring
 
-## VNPay Frontend Flow
+## Tech Stack
 
-1. The frontend submits a booking or monthly pass request with `"paymentMethod": "VNPAY"`
-2. The backend responds with a `paymentUrl`
-3. The frontend redirects the browser to VNPay sandbox
-4. VNPay returns the user to `/payments/vnpay-return`
-5. The frontend verifies that return payload through the backend public endpoint `GET /api/payments/vnpay-return`
-6. The user sees the payment result page and can navigate back to payments, bookings, or passes
+- React
+- Vite
+- React Router
+- Axios
+- CSS
+- Lucide React
 
-## Environment
+## What I Learned
 
-Create your local `.env` with:
+- Structuring a React app by pages, shared layout components, hooks, and API services
+- Managing authentication state and protected routes
+- Connecting frontend screens to real backend APIs
+- Handling async UI states like loading, error, refresh, and redirect flows
+- Building role-based navigation for different types of users
+- Designing interfaces that reflect business rules from the backend
+
+## Skills This Repo Shows
+
+- Frontend architecture
+- API integration
+- State handling with React hooks and context
+- Route protection
+- Admin dashboard UI
+- UX thinking for real workflows
+
+## Key Features
+
+- User dashboard
+- Browse parking lots and lot details
+- Vehicle management
+- My bookings, payments, and parking history
+- Monthly pass purchase and renewal
+- VNPay return page
+- Admin dashboards for users, lots, bookings, payments, and live slot monitoring
+
+## How To Run
+
+```bash
+npm install
+npm run dev
+```
+
+Create a `.env.local` or `.env` file:
 
 ```bash
 VITE_API_URL=http://localhost:3000/api
 ```
 
-The backend should use a VNPay return URL that points back to this frontend page:
+The frontend expects the backend repo to be running separately on `http://localhost:3000`.
 
-```bash
-VNPAY_RETURN_URL=http://localhost:5173/payments/vnpay-return
-```
+## What I Would Improve Next
 
-## Scripts
+- Add reusable UI primitives to reduce repeated page logic
+- Add form libraries and stronger client-side validation
+- Improve responsive behavior and accessibility
+- Add automated frontend tests
+- Add charts or richer analytics for the admin area
 
-```bash
-npm install
-npm run dev
-npm run build
-```
+## Project Note
+
+This frontend is one half of a two-repository project. The backend lives in a separate repo and provides authentication, parking, booking, and payment APIs.
