@@ -10,6 +10,7 @@
 - **Axios 1.15.2** (API) + **Lucide React 1.9.0** (Icons)
 - **Dev Server:** Port 5173
 - **API Base:** `VITE_API_URL` env var (default: `http://localhost:3000/api`)
+- **Docker Frontend:** Nginx serves the built app on port 80 inside the container, mapped to `http://localhost:8080` by backend Compose.
 
 ---
 
@@ -18,6 +19,8 @@
 **Clean Architecture with Layer Separation:**
 
 Components (UI only) → Hooks (Logic) → Services (API) → CSS (Styles)
+
+Docker deployment keeps the same frontend architecture. Vite compiles the React code into static files, and Nginx only serves those files; it should not contain app business logic.
 
 
 1. **Components are dumb** - Only render UI, no business logic
@@ -124,6 +127,8 @@ Axios Config
 Base URL from VITE_API_URL
 withCredentials: true (cookie auth)
 Auto-unwraps response.data
+Docker Build Note
+VITE_API_URL is fixed when the image is built. Rebuild the frontend image if the backend URL changes.
 Routing
 Public: /login, /register
 
@@ -182,3 +187,4 @@ index.css
  for variables/utilities
 Verify file structure matches conventions
 Ensure change doesn't break patterns
+If a Docker-facing port, API URL, or SPA routing behavior changes, update README.md and the shared agent context.

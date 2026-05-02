@@ -22,6 +22,7 @@ This repository contains the frontend for my parking management project. Its job
 - `Axios`
 - `CSS`
 - `Lucide React`
+- `Docker`
 
 ## Key Features
 
@@ -53,6 +54,8 @@ frontend/
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
+├── Dockerfile
+├── nginx.conf
 ├── package.json
 └── README.md
 ```
@@ -71,6 +74,20 @@ VITE_API_URL=http://localhost:3000/api
 ```
 
 The frontend expects the backend repo to be running separately on `http://localhost:3000`.
+
+## Docker
+
+The frontend Docker image builds the Vite app into static files and serves them with Nginx. The API URL is baked into the build through `VITE_API_URL`, so the Compose file in the backend folder passes `http://localhost:3000/api`.
+
+From the backend folder:
+
+```bash
+docker compose up --build
+```
+
+This serves the frontend at `http://localhost:8080` and the backend API at `http://localhost:3000`.
+
+The `nginx.conf` file makes browser refresh work on React routes like `/dashboard` or `/payments/vnpay-return` by falling back to `index.html`.
 
 ## What This Project Shows
 
